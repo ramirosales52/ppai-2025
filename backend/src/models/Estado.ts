@@ -1,3 +1,6 @@
+// TODO: Magnitud < 4 Estado auto_detectado
+// TODO: Magnitud >= 4 Estado auto_confirmado
+
 export default class Estado {
   // private ambito: string
   private nombreEstado: "auto_detectado" | "auto_confirmado"
