@@ -5,10 +5,15 @@ export interface Ubicacion {
   longitudHipocentro: number
 }
 
+export interface Estado {
+  nombreEstado: string
+}
+
 export interface EventoSismico {
   id: string
   fechaHora: Date
   ubicacion: Ubicacion
   magnitud: number
+  estado: Estado
 }
 

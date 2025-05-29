@@ -8,7 +8,22 @@ export default class GestorRevisionSismos {
         id: evento.getId(),
         fechaHora: evento.getFechaHoraOcurriencia(),
         ubicacion: evento.getUbicacion(),
-        magnitud: evento.getMagnitud()
+        magnitud: evento.getMagnitud(),
+        estado: evento.getEstado()
       }))
+  }
+
+  obtenerEventoPorId(id: string) {
+    const evento = eventosSismicos.find((evento) => evento.getId() === id)
+
+    if (!evento) return
+
+    return {
+      id: evento.getId(),
+      fechaHora: evento.getFechaHoraOcurriencia(),
+      ubicacion: evento.getUbicacion(),
+      magnitud: evento.getMagnitud(),
+      estado: evento.getEstado()
+    }
   }
 }

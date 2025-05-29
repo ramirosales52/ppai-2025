@@ -19,8 +19,8 @@ export default class EventoSismico {
     longitudEpicentro: number,
     longitudHipocentro: number,
     valorMagnitud: number,
-    estado: Estado
   ) {
+
     // Generar id (formato: ES-001-{añoActual})
     const añoActual = new Date().getFullYear()
     this.id = `ES-${EventoSismico.contador.toString().padStart(3, '0')}-${añoActual}`
@@ -32,7 +32,13 @@ export default class EventoSismico {
     this.longitudEpicentro = longitudEpicentro
     this.longitudHipocentro = longitudHipocentro
     this.valorMagnitud = valorMagnitud
-    this.estado = estado
+
+    // RN: Si luego del procesamiento con machine learning de los datos sísmicos se estima una
+    // magnitud mayor o igual a 4.0 en la escala Richter, el sistema debe registrar
+    // automáticamente el evento sísmico como auto confirmado, de lo contrario debe
+    // registrarlo como auto detectado.
+    const estado = valorMagnitud >= 4.0 ? "auto_confirmado" : "auto_detectado"
+    this.estado = new Estado(estado)
   }
 
   getId() {
@@ -74,9 +80,5 @@ export default class EventoSismico {
 
   getEstado(): Estado {
     return this.estado
-  }
-
-  setEstado(estado: Estado) {
-    this.estado = estado
   }
 }

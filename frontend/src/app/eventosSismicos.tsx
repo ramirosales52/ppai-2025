@@ -4,16 +4,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { EventoSismico } from "@/lib/types"
 import axios from "axios"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router"
 
-export default function osSismicos() {
+export default function eventosSismicos() {
   const [eventos, setEventos] = useState<EventoSismico[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchEventos = async () => {
     try {
+      setEventos([])
       setLoading(true)
       const res = await axios.get("http://localhost:3000/eventos-sismicos")
       setEventos(res.data)
@@ -30,13 +31,16 @@ export default function osSismicos() {
 
   return (
     <div className="container py-4 mx-auto max-w-7xl">
-      <div className="flex items-center mb-6 space-x-2">
-        <Link to="/">
-          <Button variant="ghost" size="icon" className="cursor-pointer">
-            <ArrowLeft />
-          </Button>
-        </Link>
-        <h1 className="text-xl font-bold">Eventos Sísmicos</h1>
+      <div className="flex justify-between mb-2 items-center space-x-2">
+        <div className="flex items-center space-x-2">
+          <Link to="/">
+            <Button variant="ghost" size="icon" className="cursor-pointer">
+              <ArrowLeft />
+            </Button>
+          </Link>
+          <h1 className="text-xl font-bold">Eventos Sísmicos</h1>
+        </div>
+        <Button variant="outline" className="cursor-pointer" onClick={fetchEventos}><RefreshCw /></Button>
       </div>
 
       {loading ? (
@@ -61,7 +65,7 @@ export default function osSismicos() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {eventos.map((evento) => (
-            <EventCard key={evento.magnitud} evento={evento} />
+            <EventCard key={evento.id} evento={evento} />
           ))}
         </div>
       )}

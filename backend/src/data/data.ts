@@ -1,9 +1,4 @@
-import Estado from "../models/Estado"
 import EventoSismico from "../models/EventoSismico"
-
-// Estados reutilizables
-const AUTO_DETECTADO = new Estado("auto_detectado")
-const AUTO_CONFIRMADO = new Estado("auto_confirmado")
 
 export const eventosSismicos: EventoSismico[] = [
   new EventoSismico(
@@ -13,7 +8,6 @@ export const eventosSismicos: EventoSismico[] = [
     -64.1888,
     -64.1900,
     4.8,
-    AUTO_DETECTADO
   ),
   new EventoSismico(
     new Date("2025-05-02T08:15:00Z"),
@@ -22,7 +16,6 @@ export const eventosSismicos: EventoSismico[] = [
     -58.3816,
     -58.3900,
     5.2,
-    AUTO_CONFIRMADO
   ),
   new EventoSismico(
     new Date("2025-05-03T22:50:00Z"),
@@ -31,7 +24,22 @@ export const eventosSismicos: EventoSismico[] = [
     -65.4232,
     -65.4300,
     3.9,
-    AUTO_DETECTADO
+  ),
+  new EventoSismico(
+    new Date("2025-05-03T22:50:00Z"),
+    -24.7821,
+    -24.7900,
+    -65.4232,
+    -65.4300,
+    3.9,
+  ),
+  new EventoSismico(
+    new Date("2025-05-03T22:50:00Z"),
+    -24.7821,
+    -24.7900,
+    -65.4232,
+    -65.4300,
+    2.3,
   ),
   new EventoSismico(
     new Date("2025-05-04T11:05:00Z"),
@@ -40,7 +48,6 @@ export const eventosSismicos: EventoSismico[] = [
     -65.2038,
     -65.2100,
     4.3,
-    AUTO_CONFIRMADO
   ),
   new EventoSismico(
     new Date("2025-05-05T17:40:00Z"),
@@ -49,6 +56,5 @@ export const eventosSismicos: EventoSismico[] = [
     -57.5426,
     -57.5500,
     4.6,
-    AUTO_DETECTADO
   )
 ]
