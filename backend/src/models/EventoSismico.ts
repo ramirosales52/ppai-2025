@@ -81,4 +81,13 @@ export default class EventoSismico {
   getEstado(): Estado {
     return this.estado
   }
+
+  actualizarEstado(fechaActual: Date) {
+    const haceCuanto = fechaActual.getTime() - this.getFechaHoraOcurriencia().getTime()
+    const cincoMinutos = 5 * 60 * 1000
+
+    if (this.estado.esAutoDetectado() && haceCuanto >= cincoMinutos) {
+      this.estado.cambiarAPendienteDeRevision()
+    }
+  }
 }

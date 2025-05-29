@@ -1,8 +1,9 @@
 import { eventosSismicos } from "../data/data";
 
 export default class GestorRevisionSismos {
+
   obtenerEventosSismicosNoRevisados() {
-    return eventosSismicos.filter((evento) => evento.getEstado().esAutoDetectado())
+    return eventosSismicos.filter((evento) => evento.getEstado().esAutoDetectado() || evento.getEstado().esPendienteDeRevision())
       .sort((a, b) => a.getFechaHoraOcurriencia().getTime() - b.getFechaHoraOcurriencia().getTime())
       .map((evento) => ({
         id: evento.getId(),
@@ -25,5 +26,12 @@ export default class GestorRevisionSismos {
       magnitud: evento.getMagnitud(),
       estado: evento.getEstado()
     }
+  }
+
+  actualizarEstado() {
+    const fechaActual = new Date()
+    eventosSismicos.forEach((evento) => {
+      evento.actualizarEstado(fechaActual)
+    })
   }
 }

@@ -13,6 +13,7 @@ app.use(cors())
 const gestor = new GestorRevisionSismos()
 
 app.get('/eventos-sismicos', (req: express.Request, res: express.Response) => {
+  gestor.actualizarEstado()
   const eventosSismicos = gestor.obtenerEventosSismicosNoRevisados()
 
   if (eventosSismicos.length === 0) {
