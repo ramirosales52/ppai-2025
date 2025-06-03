@@ -1,18 +1,21 @@
+type NombreEstado = "auto_detectado" | "auto_confirmado" | "pendiente_de_revision" | "bloqueado_en_revision" | "rechazado" | "confirmado" | "derivado_experto" | "evento_sin_revision" | "pendiente_de_cierre" | "cerrado"
+type Ambito = "EventoSismico"
+
 export default class Estado {
-  // private ambito: string
-  private nombreEstado: "auto_detectado" | "auto_confirmado" | "pendiente_de_revision" | "bloqueado_en_revision"
+  private ambito: Ambito
+  private nombreEstado: NombreEstado
 
   constructor(
-    // ambito: string,
-    nombreEstado: "auto_detectado" | "auto_confirmado" | "pendiente_de_revision" | "bloqueado_en_revision"
+    ambito: Ambito,
+    nombreEstado: NombreEstado
   ) {
-    // this.ambito = ambito
+    this.ambito = ambito
     this.nombreEstado = nombreEstado
   }
 
-  // getAmbito() {
-  //   return this.ambito
-  // }
+  getAmbito() {
+    return this.ambito
+  }
 
   getNombreEstado() {
     return this.nombreEstado
@@ -26,7 +29,12 @@ export default class Estado {
     return this.nombreEstado === "pendiente_de_revision"
   }
 
-  cambiarAPendienteDeRevision() {
-    return this.nombreEstado = "pendiente_de_revision"
+  esBloqueadoEnRevision() {
+    return this.nombreEstado === "bloqueado_en_revision"
   }
+
+  esAmbito(ambito: Ambito): boolean {
+    return this.ambito === ambito
+  }
+
 }

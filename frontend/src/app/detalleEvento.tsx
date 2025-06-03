@@ -37,7 +37,7 @@ export default function DetalleEvento() {
         <div className="container py-4 mx-auto max-w-7xl">
           <div className="flex items-center mb-6 space-x-2">
             <Link to="/eventos-sismicos">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="cursor-pointer">
                 <ArrowLeft />
               </Button>
             </Link>
@@ -48,13 +48,13 @@ export default function DetalleEvento() {
             <CardHeader>
               <CardTitle>Revisión</CardTitle>
               <CardDescription>
-                {evento.estado.nombreEstado === "auto_detectado" || evento.estado.nombreEstado === "bloqueado_en_revision"
+                {evento.estadoActual.nombreEstado === "auto_detectado" || evento.estadoActual.nombreEstado === "pendiente_de_revision"
                   ? "Seleccionar una acción para completar la revisión."
                   : "Este evento ya fue revisado."}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {evento.estado.nombreEstado === "auto_detectado" || evento.estado.nombreEstado === "bloqueado_en_revision" ? (
+              {evento.estadoActual.nombreEstado === "auto_detectado" || evento.estadoActual.nombreEstado === "pendiente_de_revision" ? (
                 <div className="grid gap-4 md:grid-cols-3">
                   <Button
                     className="flex items-center justify-center gap-2 h-14 cursor-pointer"
@@ -85,10 +85,10 @@ export default function DetalleEvento() {
                   <p className="text-slate-600">
                     This evento has been marked as{" "}
                     <span className="font-semibold">
-                      {evento.estado.nombreEstado === "confirmed"
-                        ? "confirmed"
-                        : evento.estado.nombreEstado === "rejected"
-                          ? "rejected"
+                      {evento.estadoActual.nombreEstado === "confirmado"
+                        ? "confirmado"
+                        : evento.estadoActual.nombreEstado === "rechazado"
+                          ? "rechazado"
                           : "requiring expert review"}
                     </span>
                     .

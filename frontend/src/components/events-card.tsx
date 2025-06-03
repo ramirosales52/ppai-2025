@@ -10,18 +10,9 @@ interface EventCardProps {
 }
 
 export default function EventCard({ evento }: EventCardProps) {
-  const formattedDate = new Date(evento.fechaHora).toLocaleString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  })
 
   const getEstado = () => {
-    switch (evento.estado.nombreEstado) {
+    switch (evento.estadoActual.nombreEstado) {
       case "confirmado":
         return (
           <Badge className="w-full flex justify-start gap-1 bg-green-500">
@@ -67,7 +58,7 @@ export default function EventCard({ evento }: EventCardProps) {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold">{formattedDate}</h3>
+                <h3 className="text-lg font-semibold">{evento.fechaHora.toString()}</h3>
                 <p className="text-sm text-slate-500">ID: {evento.id}</p>
               </div>
               <div className="flex items-center justify-center w-10 h-10 bg-red-100 rounded-full" >
@@ -105,7 +96,7 @@ export default function EventCard({ evento }: EventCardProps) {
               <div>
                 <p className="text-sm text-slate-950">Magnitud</p>
                 <p className="font-medium">
-                  {evento.magnitud}
+                  {evento.valorMagnitud}
                 </p>
               </div>
             </div>
