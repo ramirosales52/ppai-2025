@@ -98,6 +98,7 @@ export default class EventoSismico {
     }
   }
 
+  // TODO: Alcance
   getUbicacionES() {
 
   }

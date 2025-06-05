@@ -32,7 +32,7 @@ app.get('/eventos-sismicos', (req: express.Request, res: express.Response) => {
 app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) => {
   const id = req.params.id
   const evento = gestor.obtenerEventoPorId(id)
-  const datosEvento = gestor.obtenerDatos(id)
+
   try {
     gestor.bloquearEvento(id)
   } catch (error) {
@@ -43,8 +43,11 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
     res.status(404).json({ message: "Evento no encontrado" })
   }
 
+  const eventoActualizado = gestor.obtenerEventoPorId(id)
+  const datosEvento = gestor.obtenerDatos(id)
+
   res.json({
-    evento,
+    evento: eventoActualizado,
     datosEvento: datosEvento
   })
 })

@@ -21,11 +21,12 @@ export default class AlcanceSismo {
   }
 
   static setAlcance(ubicacionES: Coordenadas, epicentro: Coordenadas): AlcanceSismo {
-    const kmPorGrado = 111 // 1 grado ≈ 111 km en lat/lon
+    // Si la tierra fuese plana
+    const kmPorGrado = 111 // 1 grado ≈ 111 km en lat/long
     const dLat = epicentro.latitud - ubicacionES.latitud
-    const dLon = epicentro.longitud - ubicacionES.longitud
+    const dLong = epicentro.longitud - ubicacionES.longitud
 
-    const distancia = Math.round(Math.sqrt(dLat * dLat + dLon * dLon) * kmPorGrado * 100) / 100 // redondeo a 2 decimales
+    const distancia = Math.round(Math.sqrt(dLat * dLat + dLong * dLong) * kmPorGrado * 100) / 100
 
     if (distancia <= 100) return new AlcanceSismo("local")
     if (distancia <= 1000) return new AlcanceSismo("regional")

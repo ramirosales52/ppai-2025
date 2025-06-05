@@ -1,5 +1,5 @@
-type NombreEstado = "auto_detectado" | "auto_confirmado" | "pendiente_de_revision" | "bloqueado_en_revision" | "rechazado" | "confirmado" | "derivado_experto" | "evento_sin_revision" | "pendiente_de_cierre" | "cerrado"
-type Ambito = "EventoSismico"
+type NombreEstado = "auto_detectado" | "auto_confirmado" | "pendiente_de_revision" | "bloqueado_en_revision" | "rechazado" | "confirmado" | "derivado_experto" | "evento_sin_revision" | "pendiente_de_cierre" | "cerrado" | "en_linea"
+type Ambito = "EventoSismico" | "Sismografo"
 
 export default class Estado {
   private ambito: Ambito
