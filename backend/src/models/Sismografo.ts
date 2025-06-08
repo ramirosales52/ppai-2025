@@ -26,7 +26,21 @@ export default class Sismografo {
     this.serieTemporal = serieTemporal
   }
 
-  getIdentificadorSismografo() {
-    return this.identificadorSismografo
+  getSerieTemporal(): SerieTemporal[] {
+    return this.serieTemporal
+  }
+
+  getEstacionSismologica(): EstacionSismologica {
+    return this.estacionSismologica
+  }
+
+  getDatos() {
+    return {
+      fechaAdquisicion: this.fechaAdquisicion,
+      identificadorSismografo: this.identificadorSismografo,
+      nroSerie: this.nroSerie,
+      estadoActual: this.estadoActual,
+      estacionSismologica: this.estacionSismologica
+    }
   }
 }

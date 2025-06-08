@@ -1,4 +1,3 @@
-import { formatoFecha } from "../utils/formatoFecha"
 import DetalleMuestraSismica from "./DetalleMuestraSismica"
 
 export default class MuestraSismica {
@@ -15,7 +14,7 @@ export default class MuestraSismica {
 
   getDatos() {
     return {
-      fechaHoraMuestra: this.fechaHoraMuestra.toLocaleString("es-AR", formatoFecha).replace(',', ' -'),
+      fechaHoraMuestra: this.fechaHoraMuestra,
       detalleMuestraSismica: this.detalleMuestraSismica
     }
   }

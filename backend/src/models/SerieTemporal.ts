@@ -1,4 +1,3 @@
-import { formatoFecha } from "../utils/formatoFecha"
 import MuestraSismica from "./MuestraSismica"
 
 export default class SerieTemporal {
@@ -12,7 +11,7 @@ export default class SerieTemporal {
     fechaHoraInicioRegistroMuestras: Date,
     fechaHoraRegistro: Date,
     frecuenciaMuestreo: number,
-    muestraSismica: MuestraSismica[]
+    muestraSismica: MuestraSismica[],
   ) {
     this.fechaHoraInicioRegistroMuestras = fechaHoraInicioRegistroMuestras
     this.fechaHoraRegistro = fechaHoraRegistro
@@ -46,11 +45,11 @@ export default class SerieTemporal {
 
   getDatos() {
     return {
-      fechaHoraInicioRegistroMuestras: this.fechaHoraInicioRegistroMuestras.toLocaleString("es-AR", formatoFecha).replace(',', ' -'),
-      fechaHoraRegistro: this.fechaHoraRegistro.toLocaleString("es-AR", formatoFecha).replace(',', ' -'),
+      fechaHoraInicioRegistroMuestras: this.fechaHoraInicioRegistroMuestras,
+      fechaHoraRegistro: this.fechaHoraRegistro,
       frecuenciaMuestreo: this.frecuenciaMuestreo,
       condicionAlarma: this.condicionAlarma,
-      muestrasSismicas: this.muestraSismica.map(m => m.getDatos())
+      muestrasSismicas: this.muestraSismica.map(m => m.getDatos()).sort((a, b) => a.fechaHoraMuestra.getTime() - b.fechaHoraMuestra.getTime())
     }
   }
 }

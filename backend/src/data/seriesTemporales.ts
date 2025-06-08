@@ -13,24 +13,17 @@ const muestrasSerie1: MuestraSismica[] = [
     new DetalleMuestraSismica(10.0, tipoFrecuencia),
     new DetalleMuestraSismica(0.7, tipoLongitud),
   ]),
-  new MuestraSismica(new Date("2025-02-21T19:10:41"), [
-    new DetalleMuestraSismica(7.02, tipoVelocidad),
-    new DetalleMuestraSismica(10.0, tipoFrecuencia),
-    new DetalleMuestraSismica(0.69, tipoLongitud),
-  ]),
   new MuestraSismica(new Date("2025-02-21T19:15:41"), [
     new DetalleMuestraSismica(6.99, tipoVelocidad),
     new DetalleMuestraSismica(10.01, tipoFrecuencia),
     new DetalleMuestraSismica(0.7, tipoLongitud),
   ]),
+  new MuestraSismica(new Date("2025-02-21T19:10:41"), [
+    new DetalleMuestraSismica(7.02, tipoVelocidad),
+    new DetalleMuestraSismica(10.0, tipoFrecuencia),
+    new DetalleMuestraSismica(0.69, tipoLongitud),
+  ]),
 ]
-
-const serieTemporal1 = new SerieTemporal(
-  new Date("2025-02-21T19:05:41"),
-  new Date("2025-02-21T19:15:41"),
-  50,
-  muestrasSerie1
-)
 
 const muestrasSerie2: MuestraSismica[] = [ // ← Supera umbral
   new MuestraSismica(new Date("2025-03-03T14:30:00"), [
@@ -50,14 +43,17 @@ const muestrasSerie2: MuestraSismica[] = [ // ← Supera umbral
   ]),
 ]
 
-const serieTemporal2 = new SerieTemporal(
-  new Date("2025-03-03T14:30:00"),
-  new Date("2025-03-03T14:40:00"),
-  50,
-  muestrasSerie2
-)
-
 export const SERIES_TEMPORALES = {
-  serieTemporal1: serieTemporal1,
-  serieTemporal2: serieTemporal2
+  serieTemporal1: new SerieTemporal(
+    new Date("2025-02-21T19:05:41"),
+    new Date("2025-02-21T19:15:41"),
+    50,
+    muestrasSerie1,
+  ),
+  serieTemporal2: new SerieTemporal(
+    new Date("2025-03-03T14:30:00"),
+    new Date("2025-03-03T14:40:00"),
+    50,
+    muestrasSerie2,
+  )
 }

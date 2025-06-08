@@ -1,7 +1,7 @@
 import { eventosSismicos, usuarios } from "../data/data";
 import { ESTADOS } from "../data/estados";
+import { SISMOGRAFOS } from "../data/sismografos";
 import Sesion from "../models/Sesion";
-import { formatoFecha } from "../utils/formatoFecha";
 
 export default class GestorRevisionSismos {
   iniciarSesion(nombreUsuario: string, contraseña: string) {
@@ -23,12 +23,12 @@ export default class GestorRevisionSismos {
       .sort((a, b) => a.getFechaHoraOcurriencia().getTime() - b.getFechaHoraOcurriencia().getTime())
       .map((evento) => ({
         id: evento.getId(),
-        fechaHora: evento.getFechaHoraOcurriencia().toLocaleString("es-AR", formatoFecha).replace(',', ' -'),
+        fechaHora: evento.getFechaHoraOcurriencia(),
         ubicacion: evento.getUbicacion(),
         valorMagnitud: evento.getValorMagnitud(),
         estadoActual: evento.getEstadoActual(),
         magnitudRichter: evento.getMagnitud(),
-        historialEstados: evento.getHistorialEstadosFormateado()
+        historialEstados: evento.getHistorialEstados()
       }))
   }
 
@@ -39,12 +39,28 @@ export default class GestorRevisionSismos {
 
     return {
       id: evento.getId(),
-      fechaHora: evento.getFechaHoraOcurriencia().toLocaleString("es-AR", formatoFecha).replace(',', ' -'),
+      fechaHora: evento.getFechaHoraOcurriencia(),
       ubicacion: evento.getUbicacion(),
       valorMagnitud: evento.getValorMagnitud(),
       estadoActual: evento.getEstadoActual(),
       magnitudRichter: evento.getMagnitud(),
-      historialEstados: evento.getHistorialEstadosFormateado()
+      historialEstados: evento.getHistorialEstados(),
+    }
+  }
+
+  obtenerDatos(id: string) {
+    const evento = eventosSismicos.find((evento) => evento.getId() === id)
+
+    if (!evento) throw new Error("Evento no encontrado")
+
+    return {
+      profundidad: evento.getProfundidad(),
+      clasificacion: evento.getClasificacionSismo(),
+      origenDeGeneracion: evento.getOrigenDeGeneracion(),
+      alcanceSismo: evento.getAlcances(),
+      estacionesSismologicas: evento.getEstacionSismologica(SISMOGRAFOS),
+      sismografosSerie: evento.getSismografoSerie(SISMOGRAFOS),
+      seriesTemporales: evento.getSerieTemporal().sort((a, b) => a.getFechaHoraInicioRegistroMuestras().getTime() - b.getFechaHoraInicioRegistroMuestras().getTime())
     }
   }
 
@@ -77,16 +93,5 @@ export default class GestorRevisionSismos {
     evento.cambiarEstadoA(ESTADOS.bloqueado_en_revision, empleado)
   }
 
-  obtenerDatos(id: string) {
-    const evento = eventosSismicos.find((evento) => evento.getId() === id)
 
-    if (!evento) throw new Error("Evento no encontrado")
-
-    return {
-      profundidad: evento.getProfundidad(),
-      clasificacion: evento.getClasificacionSismo(),
-      origenDeGeneracion: evento.getOrigenDeGeneracion(),
-      seriesTemporales: evento.getSeriesTemporalesFormateado()
-    }
-  }
 }

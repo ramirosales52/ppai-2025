@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { EventoSismico } from "@/lib/types"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import axios from "axios"
-import { Check, X, BrainIcon, ArrowLeft, CheckCircle2, XCircle, Lock, MapPin, Map, Activity } from "lucide-react"
+import { Check, X, BrainIcon, ArrowLeft, CheckCircle2, XCircle, Lock, MapPin, Map, Activity, Calendar, Radio } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router"
+import { formatoFecha } from "@/lib/formatoFecha"
 
 export default function DetalleEvento() {
   const { id } = useParams()
@@ -33,7 +35,7 @@ export default function DetalleEvento() {
 
   if (!eventoSismico) return
 
-  const getStatusBadge = () => {
+  const getEstadoActual = () => {
     if (!eventoSismico) return null
 
     switch (eventoSismico.evento.estadoActual.nombreEstado) {
@@ -95,48 +97,54 @@ export default function DetalleEvento() {
                       Detalles del Evento Sísmico
                     </span>
                   </CardTitle>
-                  <CardDescription>{eventoSismico.evento.id}</CardDescription>
+                  <CardDescription>ID: {eventoSismico.evento.id}</CardDescription>
                 </div>
-                {getStatusBadge()}
+                {getEstadoActual()}
               </CardHeader>
               <CardContent>
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <h3 className="mb-2 text-sm font-medium text-slate-500">Basic Information</h3>
+                    <h3 className="mb-2 text-sm font-medium text-slate-500">Datos del Evento Sismico</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-slate-500">Date/Time</p>
-                        <p className="font-medium">{eventoSismico.evento.fechaHora.toString()}</p>
+                        <p className="text-sm text-slate-500">Fecha y Hora de Ocurriencia</p>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span className="font-medium">{new Date(eventoSismico.evento.fechaHora).toLocaleString("es-AR", formatoFecha).replace(',', ' -')}</span>
+                        </div>
                       </div>
                       <div>
-                        <p className="text-sm text-slate-500">Magnitude</p>
+                        <p className="text-sm text-slate-500">Magnitud</p>
                         <p className="font-medium">{eventoSismico.evento.valorMagnitud.toFixed(1)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-slate-500">Epicenter</p>
-                        <p className="font-medium">
-                          {eventoSismico.evento.ubicacion.latitudEpicentro.toFixed(4)}, {eventoSismico.evento.ubicacion.longitudEpicentro.toFixed(4)}
-                        </p>
+                        <p className="text-sm text-slate-500">Epicentro</p>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          <span className="font-medium">
+                            {eventoSismico.evento.ubicacion.latitudEpicentro.toFixed(4)}, {eventoSismico.evento.ubicacion.longitudEpicentro.toFixed(4)}
+                          </span>
+                        </div>
                       </div>
                       <div>
-                        <p className="text-sm text-slate-500">Depth</p>
+                        <p className="text-sm text-slate-500">Profundidad</p>
                         <p className="font-medium">{eventoSismico.datosEvento.profundidad} km</p>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <h3 className="mb-2 text-sm font-medium text-slate-500">Classification</h3>
+                    <h3 className="mb-2 text-sm font-medium text-slate-500">Clasificación</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {/* <div> */}
-                      {/*   <p className="text-sm text-slate-500">Scope</p> */}
+                      {/*   <p className="text-sm text-slate-500">Alcance</p> */}
                       {/*   <p className="font-medium">{eventoSismico..scope}</p> */}
                       {/* </div> */}
                       <div>
-                        <p className="text-sm text-slate-500">Classification</p>
+                        <p className="text-sm text-slate-500">Clasificación</p>
                         <p className="font-medium">{eventoSismico.datosEvento.clasificacion.nombre}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-slate-500">Origin</p>
+                        <p className="text-sm text-slate-500">Origen de Generación</p>
                         <p className="font-medium">{eventoSismico.datosEvento.origenDeGeneracion.nombre}</p>
                       </div>
                     </div>
@@ -156,6 +164,41 @@ export default function DetalleEvento() {
                     <p className="text-gray-600 mb-2">Mapa del evento sísmico</p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Series Temporales</CardTitle>
+                <CardDescription>Conjunto de muestras sísmicas tomadas en determinados instantes de tiempo y ordenadas cronológicamente.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue={eventoSismico.datosEvento.estacionesSismologicas[0]?.codigoEstacion}>
+                  <TabsList className="mb-4">
+                    {eventoSismico.datosEvento.estacionesSismologicas.map((estacion) => (
+                      <TabsTrigger key={estacion.codigoEstacion} value={estacion.codigoEstacion}>
+                        {estacion.nombre}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  {eventoSismico.datosEvento.estacionesSismologicas.map((estacion) => (
+                    <TabsContent key={estacion.codigoEstacion} value={estacion.codigoEstacion} className="flex flex-col gap-2">
+                      {eventoSismico.datosEvento.seriesTemporales.map((serie) => (
+                        <Card key={serie.fechaHoraInicioRegistroMuestras.toString()} className={`border-l-4 ${serie.condicionAlarma ? "border-l-red-500" : "border-l-green-500"} `}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <Radio className={`h-5 w-5 ${serie.condicionAlarma ? "text-red-600" : "text-green-600"}`} />
+                                <h3 className="font-semibold">{serie.fechaHoraInicioRegistroMuestras.toString()}</h3>
+                                <Badge variant="outline">{serie.frecuenciaMuestreo} Hz</Badge>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </TabsContent>
+                  ))}
+                </Tabs>
               </CardContent>
             </Card>
 

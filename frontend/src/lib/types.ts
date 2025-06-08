@@ -27,6 +27,13 @@ interface Empleado {
   telefono: number
 }
 
+interface EstacionSismologica {
+  codigoEstacion: string,
+  latitud: number,
+  longitud: number,
+  nombre: string
+}
+
 interface TipoDato {
   denominacion: string,
   nombreUnidadMedida: string
@@ -57,11 +64,12 @@ interface HistorialEstados {
   fechaHoraFin: Date
 }
 
-interface Datos {
+interface DatosEvento {
   clasificacion: Clasificacion,
   origenDeGeneracion: Origen,
   profundidad: number,
   seriesTemporales: SerieTemporal[]
+  estacionesSismologicas: EstacionSismologica[]
 }
 
 interface Evento {
@@ -76,6 +84,6 @@ interface Evento {
 
 export interface EventoSismico {
   evento: Evento,
-  datosEvento: Datos
+  datosEvento: DatosEvento
 }
 
