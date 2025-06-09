@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router"
 import { formatear, formatoFecha } from "@/lib/formato"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { toast, Toaster } from "sonner"
 
 export default function DetalleEvento() {
   const { id } = useParams()
@@ -40,6 +41,7 @@ export default function DetalleEvento() {
         nuevoEstado
       })
       await fetchEvento()
+      toast.success(`Estado actualizado a "${nuevoEstado}"`)
     } catch (error) {
       console.log(error)
     }
@@ -86,6 +88,7 @@ export default function DetalleEvento() {
 
   return (
     <>
+      <Toaster position="top-center" richColors />
       {loading ? (
         <div className="space-y-6">
           <Skeleton className="w-full h-48" />
