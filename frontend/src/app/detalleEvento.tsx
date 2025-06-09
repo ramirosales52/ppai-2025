@@ -350,11 +350,7 @@ export default function DetalleEvento() {
                     <p className="text-slate-600">
                       Este evento ya fue marcado como{" "}
                       <span className="font-semibold">
-                        {eventoSismico.evento.estadoActual.nombreEstado === "confirmado"
-                          ? "CONFIRMADO"
-                          : eventoSismico.evento.estadoActual.nombreEstado === "rechazado"
-                            ? "RECHAZADO"
-                            : "DERIVADO A EXPERTO"}
+                        {formatear(eventoSismico.evento.estadoActual.nombreEstado).toUpperCase()}
                       </span>
                       .
                     </p>
