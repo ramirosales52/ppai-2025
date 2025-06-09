@@ -19,19 +19,21 @@ export const SISMOGRAFOS = [
     ESTACIONES_SISMOLOGICAS.estacionSismologica1,
     [
       SERIES_TEMPORALES.serieTemporal1,
+      SERIES_TEMPORALES.serieTemporal2,
+      SERIES_TEMPORALES.serieTemporal3
       // SERIES_TEMPORALES.serieTemporal2,
     ]
   ),
-  // new Sismografo(
-  //   new Date("2021-03-08"),
-  //   "SIS-002",
-  //   54321,
-  //   ESTADOS.en_linea,
-  //   ESTACIONES_SISMOLOGICAS.estacionSismologica1,
-  //   [
-  //     SERIES_TEMPORALES.serieTemporal1
-  //   ]
-  // ),
+  new Sismografo(
+    new Date("2021-03-08"),
+    "SIS-002",
+    54321,
+    ESTADOS.en_linea,
+    ESTACIONES_SISMOLOGICAS.estacionSismologica1,
+    [
+      SERIES_TEMPORALES.serieTemporal1
+    ]
+  ),
 
   // Para EST-002
   new Sismografo(

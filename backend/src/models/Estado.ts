@@ -33,6 +33,18 @@ export default class Estado {
     return this.nombreEstado === "bloqueado_en_revision"
   }
 
+  esConfirmado() {
+    return this.nombreEstado === "confirmado"
+  }
+
+  esRechazado() {
+    return this.nombreEstado === "rechazado"
+  }
+
+  esDerivadoExperto() {
+    return this.nombreEstado === "derivado_experto"
+  }
+
   esAmbito(ambito: Ambito): boolean {
     return this.ambito === ambito
   }

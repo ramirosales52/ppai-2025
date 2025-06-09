@@ -92,11 +92,11 @@ interface DatosEvento {
   clasificacion: Clasificacion,
   origenDeGeneracion: Origen,
   profundidad: number,
-  alcanceSismo: AlcanceSismo,
+  alcanceSismo: AlcanceSismo[],
   estacionesSismologicas: EstacionesSismologicas[]
 }
 
-interface Evento {
+export interface Evento {
   id: string,
   fechaHora: Date,
   ubicacion: Ubicacion,

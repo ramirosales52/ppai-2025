@@ -7,3 +7,11 @@ export const formatoFecha: Intl.DateTimeFormatOptions = {
   second: '2-digit',
   hour12: false,
 }
+
+
+export const formatear = (str: string) =>
+  str
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/^./, (c) => c.toUpperCase())
+

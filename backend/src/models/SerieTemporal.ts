@@ -49,7 +49,7 @@ export default class SerieTemporal {
       fechaHoraRegistro: this.fechaHoraRegistro,
       frecuenciaMuestreo: this.frecuenciaMuestreo,
       condicionAlarma: this.condicionAlarma,
-      muestrasSismicas: this.muestraSismica.map(m => m.getDatos()).sort((a, b) => a.fechaHoraMuestra.getTime() - b.fechaHoraMuestra.getTime())
+      muestrasSismicas: this.muestraSismica
     }
   }
 }

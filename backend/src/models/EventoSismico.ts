@@ -218,6 +218,20 @@ export default class EventoSismico {
     }[] = []
 
     for (const sismografo of sismografosDelEvento) {
+      // Ordenar las series temporales del sismógrafo
+      sismografo.getSerieTemporal().sort((a, b) =>
+        new Date(a.getDatos().fechaHoraInicioRegistroMuestras).getTime() -
+        new Date(b.getDatos().fechaHoraInicioRegistroMuestras).getTime()
+      )
+
+      // Ordenar las muestras dentro de cada serie
+      for (const serie of sismografo.getSerieTemporal()) {
+        serie.getDatos().muestrasSismicas.sort((a, b) =>
+          new Date(a.getDatos().fechaHoraMuestra).getTime() -
+          new Date(b.getDatos().fechaHoraMuestra).getTime()
+        )
+      }
+
       const estacion = sismografo.getEstacionSismologica()
       const yaExiste = agrupados.find(grupo =>
         grupo.estacionSismologica.getCodigoEstacion() === estacion.getCodigoEstacion()
@@ -235,6 +249,7 @@ export default class EventoSismico {
 
     return agrupados
   }
+
 
   private calcularAlcances(sismografos: Sismografo[]): { estacion: EstacionSismologica, alcance: AlcanceSismo }[] {
     const estaciones = this.getEstacionSismologica(sismografos)

@@ -2,14 +2,14 @@ import EventCard from "@/components/events-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { EventoSismico } from "@/lib/types"
+import type { Evento } from "@/lib/types"
 import axios from "axios"
 import { ArrowLeft, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router"
 
 export default function eventosSismicos() {
-  const [eventos, setEventos] = useState<EventoSismico[]>([])
+  const [eventos, setEventos] = useState<Evento[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchEventos = async () => {
@@ -64,8 +64,8 @@ export default function eventosSismicos() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {eventos.map((evento) => (
-            <EventCard key={evento.id} evento={evento} />
+          {eventos.map((evento, i) => (
+            <EventCard key={i} evento={evento} />
           ))}
         </div>
       )}

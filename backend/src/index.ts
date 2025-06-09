@@ -2,7 +2,6 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import GestorRevisionSismos from './controllers/GestorRevisionSismos'
-import { on } from 'events'
 
 dotenv.config()
 
@@ -10,6 +9,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(cors())
+app.use(express.json())
 
 const gestor = new GestorRevisionSismos()
 
@@ -70,6 +70,21 @@ app.get('/sesion-actual', (req: express.Request, res: express.Response) => {
   }
 
   res.json(sesionActual)
+})
+
+// Ruta para actualizar el estado del evento
+app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) => {
+  const id = req.params.id
+  const { nuevoEstado } = req.body
+
+  try {
+    gestor.actualizarEstadoA(id, nuevoEstado)
+    res.status(200).json({ message: "Estado actualizado correctamente" })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Error al actualizar el estado" })
+  }
+
 })
 
 app.listen(PORT, () => {

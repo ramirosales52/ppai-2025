@@ -86,11 +86,41 @@ export default class GestorRevisionSismos {
     const estadoActual = evento.getEstadoActual()
 
     if (!estadoActual.esAmbito("EventoSismico")) return
-    if (estadoActual.esBloqueadoEnRevision()) return
+    if (
+      estadoActual.esBloqueadoEnRevision() ||
+      estadoActual.esConfirmado() ||
+      estadoActual.esRechazado() ||
+      estadoActual.esDerivadoExperto()
+    ) return
 
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
     const empleado = usuario.getRILogueado()
 
     evento.cambiarEstadoA(ESTADOS.bloqueado_en_revision, empleado)
+  }
+
+  actualizarEstadoA(id: string, nuevoEstado: string) {
+    console.log(nuevoEstado)
+    const evento = eventosSismicos.find((evento) => evento.getId() === id)
+    if (!evento) throw new Error("Evento no encontrado")
+
+    const estadoActual = evento.getEstadoActual()
+
+    if (!estadoActual.esAmbito("EventoSismico")) return
+
+    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
+    const empleado = usuario.getRILogueado()
+
+    switch (nuevoEstado) {
+      case "confirmado":
+        evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
+        break
+      case "derivado_experto":
+        evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
+        break
+      default:
+        evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
+        break
+    }
   }
 }

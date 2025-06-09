@@ -55,5 +55,11 @@ export const SERIES_TEMPORALES = {
     new Date("2025-03-03T14:40:00"),
     50,
     muestrasSerie2,
+  ),
+  serieTemporal3: new SerieTemporal(
+    new Date("2025-03-03T14:30:00"),
+    new Date("2025-03-03T14:40:00"),
+    50,
+    muestrasSerie2,
   )
 }
