@@ -54,7 +54,31 @@ interface SerieTemporal {
   fechaHoraInicioRegistroMuestras: Date,
   fechaHoraRegistro: Date,
   frecuenciaMuestreo: number,
-  muestrasSismicas: MuestraSismica[]
+  muestraSismica: MuestraSismica[]
+}
+
+interface Alcance {
+  nombre: string,
+  distancia: number
+}
+
+interface AlcanceSismo {
+  alcance: Alcance,
+  estacion: EstacionSismologica
+}
+
+interface Sismografo {
+  estacionSismologica: EstacionSismologica,
+  estadoActual: Estado,
+  fechaAdquisicion: Date,
+  identificadorSismografo: string,
+  nroSerie: number,
+  serieTemporal: SerieTemporal[]
+}
+
+interface EstacionesSismologicas {
+  estacionSismologica: EstacionSismologica,
+  sismografos: Sismografo[]
 }
 
 interface HistorialEstados {
@@ -68,8 +92,8 @@ interface DatosEvento {
   clasificacion: Clasificacion,
   origenDeGeneracion: Origen,
   profundidad: number,
-  seriesTemporales: SerieTemporal[]
-  estacionesSismologicas: EstacionSismologica[]
+  alcanceSismo: AlcanceSismo,
+  estacionesSismologicas: EstacionesSismologicas[]
 }
 
 interface Evento {

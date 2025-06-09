@@ -58,9 +58,10 @@ export default class GestorRevisionSismos {
       clasificacion: evento.getClasificacionSismo(),
       origenDeGeneracion: evento.getOrigenDeGeneracion(),
       alcanceSismo: evento.getAlcances(),
-      estacionesSismologicas: evento.getEstacionSismologica(SISMOGRAFOS),
-      sismografosSerie: evento.getSismografoSerie(SISMOGRAFOS),
-      seriesTemporales: evento.getSerieTemporal().sort((a, b) => a.getFechaHoraInicioRegistroMuestras().getTime() - b.getFechaHoraInicioRegistroMuestras().getTime())
+      estacionesSismologicas: evento.getSismografosAgrupadosPorEstacion(SISMOGRAFOS)
+      // estacionesSismologicas: evento.getEstacionSismologica(SISMOGRAFOS),
+      // sismografosSerie: evento.getSismografoSerie(SISMOGRAFOS),
+      // seriesTemporales: evento.getSerieTemporal().sort((a, b) => a.getFechaHoraInicioRegistroMuestras().getTime() - b.getFechaHoraInicioRegistroMuestras().getTime())
     }
   }
 
@@ -92,6 +93,4 @@ export default class GestorRevisionSismos {
 
     evento.cambiarEstadoA(ESTADOS.bloqueado_en_revision, empleado)
   }
-
-
 }

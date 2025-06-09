@@ -11,14 +11,6 @@ import OrigenDeGeneracion from "./OrigenDeGeneracion"
 import SerieTemporal from "./SerieTemporal"
 import Sismografo from "./Sismografo"
 
-type SismografoSerie = {
-  fechaAdquisicion: Date
-  identificadorSismografo: string
-  nroSerie: number
-  estadoActual: Estado
-  estacionSismologica: EstacionSismologica
-}
-
 export default class EventoSismico {
   private static contador = 1
 
@@ -200,27 +192,48 @@ export default class EventoSismico {
 
   getSismografoSerie(sismografos: Sismografo[]) {
     const seriesDelEvento = this.serieTemporal
-    const sismografosSerie: SismografoSerie[] = []
+    const sismografosSerie: Sismografo[] = []
 
     for (const sismografo of sismografos) {
       const seriesDelSismografo = sismografo.getSerieTemporal()
 
       for (const serie of seriesDelSismografo) {
         if (seriesDelEvento.includes(serie)) {
-          if (!sismografosSerie.some((s) => s.identificadorSismografo === sismografo.getDatos().identificadorSismografo)) {
-            sismografosSerie.push({
-              fechaAdquisicion: sismografo.getDatos().fechaAdquisicion,
-              identificadorSismografo: sismografo.getDatos().identificadorSismografo,
-              nroSerie: sismografo.getDatos().nroSerie,
-              estadoActual: sismografo.getDatos().estadoActual,
-              estacionSismologica: sismografo.getDatos().estacionSismologica
-            })
+          if (!sismografosSerie.includes(sismografo)) {
+            sismografosSerie.push(sismografo)
           }
           break
         }
       }
     }
     return sismografosSerie
+  }
+
+  getSismografosAgrupadosPorEstacion(sismografos: Sismografo[]) {
+    const sismografosDelEvento = this.getSismografoSerie(sismografos)
+
+    const agrupados: {
+      estacionSismologica: EstacionSismologica
+      sismografos: Sismografo[]
+    }[] = []
+
+    for (const sismografo of sismografosDelEvento) {
+      const estacion = sismografo.getEstacionSismologica()
+      const yaExiste = agrupados.find(grupo =>
+        grupo.estacionSismologica.getCodigoEstacion() === estacion.getCodigoEstacion()
+      )
+
+      if (yaExiste) {
+        yaExiste.sismografos.push(sismografo)
+      } else {
+        agrupados.push({
+          estacionSismologica: estacion,
+          sismografos: [sismografo]
+        })
+      }
+    }
+
+    return agrupados
   }
 
   private calcularAlcances(sismografos: Sismografo[]): { estacion: EstacionSismologica, alcance: AlcanceSismo }[] {

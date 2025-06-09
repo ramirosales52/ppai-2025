@@ -5,10 +5,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import type { EventoSismico } from "@/lib/types"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import axios from "axios"
-import { Check, X, BrainIcon, ArrowLeft, CheckCircle2, XCircle, Lock, MapPin, Map, Activity, Calendar, Radio } from "lucide-react"
+import { Check, X, BrainIcon, ArrowLeft, CheckCircle2, XCircle, Lock, MapPin, Map, Activity, Calendar } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router"
 import { formatoFecha } from "@/lib/formatoFecha"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function DetalleEvento() {
   const { id } = useParams()
@@ -173,28 +174,62 @@ export default function DetalleEvento() {
                 <CardDescription>Conjunto de muestras sísmicas tomadas en determinados instantes de tiempo y ordenadas cronológicamente.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue={eventoSismico.datosEvento.estacionesSismologicas[0]?.codigoEstacion}>
-                  <TabsList className="mb-4">
+                <Tabs defaultValue={eventoSismico.datosEvento.estacionesSismologicas[0].estacionSismologica.codigoEstacion}>
+                  <TabsList className="mb-4 flex gap-1">
                     {eventoSismico.datosEvento.estacionesSismologicas.map((estacion) => (
-                      <TabsTrigger key={estacion.codigoEstacion} value={estacion.codigoEstacion}>
-                        {estacion.nombre}
+                      <TabsTrigger key={estacion.estacionSismologica.codigoEstacion} value={estacion.estacionSismologica.codigoEstacion}>
+                        {estacion.estacionSismologica.nombre}
                       </TabsTrigger>
                     ))}
                   </TabsList>
                   {eventoSismico.datosEvento.estacionesSismologicas.map((estacion) => (
-                    <TabsContent key={estacion.codigoEstacion} value={estacion.codigoEstacion} className="flex flex-col gap-2">
-                      {eventoSismico.datosEvento.seriesTemporales.map((serie) => (
-                        <Card key={serie.fechaHoraInicioRegistroMuestras.toString()} className={`border-l-4 ${serie.condicionAlarma ? "border-l-red-500" : "border-l-green-500"} `}>
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <Radio className={`h-5 w-5 ${serie.condicionAlarma ? "text-red-600" : "text-green-600"}`} />
-                                <h3 className="font-semibold">{serie.fechaHoraInicioRegistroMuestras.toString()}</h3>
-                                <Badge variant="outline">{serie.frecuenciaMuestreo} Hz</Badge>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                    <TabsContent key={estacion.estacionSismologica.codigoEstacion} value={estacion.estacionSismologica.codigoEstacion} className="flex flex-col gap-2">
+                      {estacion.sismografos.map((sismografo) => (
+                        <div key={sismografo.identificadorSismografo}>
+                          <h1>{sismografo.identificadorSismografo}</h1>
+                          {sismografo.serieTemporal.map((serie) => (
+                            <Card key={serie.fechaHoraInicioRegistroMuestras.toString()} className={`border-l-4 ${serie.condicionAlarma ? "border-l-red-500" : "border-l-green-500"}`}>
+                              <CardContent>
+                                <Table className="w-full text-sm">
+                                  <TableHeader>
+                                    <TableRow className="border-b">
+                                      <TableHead className="text-left p-2">Fecha/Hora</TableHead>
+                                      <TableHead className="text-left p-2">Velocidad</TableHead>
+                                      <TableHead className="text-left p-2">Frecuencia</TableHead>
+                                      <TableHead className="text-left p-2">Longitud</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {serie.muestraSismica.map((muestra) => {
+                                      const velocidad = muestra.detalleMuestraSismica.find(
+                                        (d) => d.tipoDeDato.denominacion === "Velocidad de onda"
+                                      )?.valor ?? "-";
+
+                                      const frecuencia = muestra.detalleMuestraSismica.find(
+                                        (d) => d.tipoDeDato.denominacion === "Frecuencia de onda"
+                                      )?.valor ?? "-";
+
+                                      const longitud = muestra.detalleMuestraSismica.find(
+                                        (d) => d.tipoDeDato.denominacion === "Longitud de onda"
+                                      )?.valor ?? "-";
+
+                                      return (
+                                        <TableRow key={muestra.fechaHoraMuestra.toString()} className="border-b">
+                                          <TableCell className="p-2">
+                                            {new Date(muestra.fechaHoraMuestra).toLocaleString("es-AR", formatoFecha).replace(',', ' -')}
+                                          </TableCell>
+                                          <TableCell className="p-2">{velocidad} Km/seg</TableCell>
+                                          <TableCell className="p-2">{frecuencia} Hz</TableCell>
+                                          <TableCell className="p-2">{longitud} Km/ciclo</TableCell>
+                                        </TableRow>
+                                      );
+                                    })}
+                                  </TableBody>
+                                </Table>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
                       ))}
                     </TabsContent>
                   ))}
