@@ -23,6 +23,7 @@ export default function DetalleEvento() {
       setLoading(true)
       const res = await axios.get(`http://localhost:3000/eventos-sismicos/${id}`)
       setEventoSismico(res.data)
+      console.log(res.data)
     } catch (error) {
       console.log(error)
     } finally {
@@ -83,7 +84,6 @@ export default function DetalleEvento() {
         )
     }
   }
-
 
 
   return (

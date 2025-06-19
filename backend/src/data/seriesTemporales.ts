@@ -2,6 +2,7 @@ import DetalleMuestraSismica from "../models/DetalleMuestraSismica"
 import MuestraSismica from "../models/MuestraSismica"
 import SerieTemporal from "../models/SerieTemporal"
 import TipoDeDato from "../models/TipoDeDato"
+import { SISMOGRAFOS } from "./sismografos"
 
 const tipoVelocidad = new TipoDeDato("Velocidad de onda", "Km/seg", 8.0)
 const tipoFrecuencia = new TipoDeDato("Frecuencia de onda", "Hz", 12.0)
@@ -49,17 +50,20 @@ export const SERIES_TEMPORALES = {
     new Date("2025-02-21T19:15:41"),
     50,
     muestrasSerie1,
+    SISMOGRAFOS.sismografo1
   ),
   serieTemporal2: new SerieTemporal(
     new Date("2025-03-03T14:30:00"),
     new Date("2025-03-03T14:40:00"),
     50,
     muestrasSerie2,
+    SISMOGRAFOS.sismografo1
   ),
   serieTemporal3: new SerieTemporal(
     new Date("2025-03-03T14:30:00"),
     new Date("2025-03-03T14:40:00"),
     50,
     muestrasSerie2,
+    SISMOGRAFOS.sismografo3
   )
 }

@@ -1,7 +1,6 @@
 import EstacionSismologica from "../models/EstacionSismologica"
 import Sismografo from "../models/Sismografo"
 import { ESTADOS } from "./estados"
-import { SERIES_TEMPORALES } from "./seriesTemporales"
 
 const ESTACIONES_SISMOLOGICAS = {
   estacionSismologica1: new EstacionSismologica("EST-001", -34.6037, -58.3816, "Estación 1"),
@@ -9,42 +8,30 @@ const ESTACIONES_SISMOLOGICAS = {
   estacionSismologica3: new EstacionSismologica("EST-003", -38.0055, -57.5426, "Estación 3")
 }
 
-export const SISMOGRAFOS = [
+export const SISMOGRAFOS = {
   // Para EST-001
-  new Sismografo(
+  sismografo1: new Sismografo(
     new Date("2020-05-12"),
     "SIS-001",
     12345,
     ESTADOS.en_linea,
     ESTACIONES_SISMOLOGICAS.estacionSismologica1,
-    [
-      SERIES_TEMPORALES.serieTemporal1,
-      SERIES_TEMPORALES.serieTemporal2,
-      SERIES_TEMPORALES.serieTemporal3
-      // SERIES_TEMPORALES.serieTemporal2,
-    ]
   ),
-  new Sismografo(
+  sismografo2: new Sismografo(
     new Date("2021-03-08"),
     "SIS-002",
     54321,
     ESTADOS.en_linea,
     ESTACIONES_SISMOLOGICAS.estacionSismologica1,
-    [
-      SERIES_TEMPORALES.serieTemporal1
-    ]
   ),
 
   // Para EST-002
-  new Sismografo(
+  sismografo3: new Sismografo(
     new Date("2019-11-20"),
     "SIS-003",
     67890,
     ESTADOS.en_linea,
     ESTACIONES_SISMOLOGICAS.estacionSismologica2,
-    [
-      SERIES_TEMPORALES.serieTemporal2
-    ]
   ),
   // new Sismografo(
   //   new Date("2022-02-01"),
@@ -79,4 +66,4 @@ export const SISMOGRAFOS = [
   //     SERIES_TEMPORALES.serieTemporal2
   //   ]
   // )
-]
+}

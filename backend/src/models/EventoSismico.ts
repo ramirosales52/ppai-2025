@@ -1,6 +1,6 @@
+import { eventosSismicos } from "../data/data"
 import { ESTADOS } from "../data/estados"
-import { SISMOGRAFOS } from "../data/sismografos"
-import AlcanceSismo from "./AlcanceSismo"
+import { SERIES_TEMPORALES } from "../data/seriesTemporales"
 import CambioEstado from "./CambioEstado"
 import ClasificacionSismo from "./ClasificacionSismo"
 import Empleado from "./Empleado"
@@ -9,7 +9,11 @@ import Estado from "./Estado"
 import MagnitudRichter from "./MagnitudRichter"
 import OrigenDeGeneracion from "./OrigenDeGeneracion"
 import SerieTemporal from "./SerieTemporal"
-import Sismografo from "./Sismografo"
+
+type SeriesPorEstacion = {
+  estacion: EstacionSismologica;
+  series: SerieTemporal[];
+};
 
 export default class EventoSismico {
   private static contador = 1
@@ -27,7 +31,7 @@ export default class EventoSismico {
   private clasificacionSismo: ClasificacionSismo
   private origenDeGeneracion: OrigenDeGeneracion
   private serieTemporal: SerieTemporal[]
-  private alcances: { estacion: EstacionSismologica, alcance: AlcanceSismo }[]
+  // private alcances: { estacion: EstacionSismologica, alcance: AlcanceSismo }[]
 
 
   constructor(
@@ -74,8 +78,6 @@ export default class EventoSismico {
 
     this.magnitud = MagnitudRichter.setMagnitudRichter(valorMagnitud)
     this.clasificacionSismo = ClasificacionSismo.setClasificacionSismo(profundidad)
-    // this.alcance = AlcanceSismo.setAlcance(this.getEstacionSismologica(SISMOGRAFOS), this.getEpicentro())
-    this.alcances = this.calcularAlcances(SISMOGRAFOS)
   }
 
   getId() {
@@ -122,9 +124,9 @@ export default class EventoSismico {
     return this.origenDeGeneracion
   }
 
-  getAlcances() {
-    return this.alcances
-  }
+  // getAlcances() {
+  //   return this.alcances
+  // }
 
   getEstadoActual(): Estado {
     const actual = this.cambioEstado.find(evento => evento.esEstadoActual())
@@ -138,10 +140,6 @@ export default class EventoSismico {
 
   getSerieTemporal(): SerieTemporal[] {
     return this.serieTemporal
-  }
-
-  getSeriesTemporalesFormateado(): any[] {
-    return this.serieTemporal.map((serie) => serie.getDatos())
   }
 
   cambiarEstadoA(nuevoEstado: Estado, empleado: Empleado | null = null) {
@@ -170,99 +168,38 @@ export default class EventoSismico {
     }
   }
 
-  getEstacionSismologica(sismografos: Sismografo[]): EstacionSismologica[] {
-    const seriesDelEvento = this.serieTemporal
-    const estaciones: EstacionSismologica[] = []
+  getSeriesPorEstacion() {
+    const seriesPorEstacion: SeriesPorEstacion[] = []
 
-    for (const sismografo of sismografos) {
-      const seriesDelSismografo = sismografo.getSerieTemporal()
-
-      for (const serie of seriesDelSismografo) {
-        if (seriesDelEvento.includes(serie)) {
-          const estacion = sismografo.getEstacionSismologica()
-          if (!estaciones.includes(estacion)) {
-            estaciones.push(estacion)
-          }
-          break
-        }
-      }
-    }
-    return estaciones
-  }
-
-  getSismografoSerie(sismografos: Sismografo[]) {
-    const seriesDelEvento = this.serieTemporal
-    const sismografosSerie: Sismografo[] = []
-
-    for (const sismografo of sismografos) {
-      const seriesDelSismografo = sismografo.getSerieTemporal()
-
-      for (const serie of seriesDelSismografo) {
-        if (seriesDelEvento.includes(serie)) {
-          if (!sismografosSerie.includes(sismografo)) {
-            sismografosSerie.push(sismografo)
-          }
-          break
-        }
-      }
-    }
-    return sismografosSerie
-  }
-
-  getSismografosAgrupadosPorEstacion(sismografos: Sismografo[]) {
-    const sismografosDelEvento = this.getSismografoSerie(sismografos)
-
-    const agrupados: {
-      estacionSismologica: EstacionSismologica
-      sismografos: Sismografo[]
-    }[] = []
-
-    for (const sismografo of sismografosDelEvento) {
-      // Ordenar las series temporales del sismógrafo
-      sismografo.getSerieTemporal().sort((a, b) =>
-        new Date(a.getDatos().fechaHoraInicioRegistroMuestras).getTime() -
-        new Date(b.getDatos().fechaHoraInicioRegistroMuestras).getTime()
-      )
-
-      // Ordenar las muestras dentro de cada serie
-      for (const serie of sismografo.getSerieTemporal()) {
+    for (const evento of eventosSismicos) {
+      for (const serie of evento.serieTemporal) {
+        // Ordenar muestras sismicas por fechaHoraMuestra
         serie.getDatos().muestrasSismicas.sort((a, b) =>
-          new Date(a.getDatos().fechaHoraMuestra).getTime() -
-          new Date(b.getDatos().fechaHoraMuestra).getTime()
+          a.getDatos().fechaHoraMuestra.getTime() - b.getDatos().fechaHoraMuestra.getTime()
         )
-      }
 
-      const estacion = sismografo.getEstacionSismologica()
-      const yaExiste = agrupados.find(grupo =>
-        grupo.estacionSismologica.getCodigoEstacion() === estacion.getCodigoEstacion()
+        const estacion = serie.getSismografo().getEstacionSismologica()
+        const existente = seriesPorEstacion.find(e => e.estacion.getCodigoEstacion() === estacion.getCodigoEstacion())
+
+        if (existente) {
+          existente.series.push(serie)
+        } else {
+          seriesPorEstacion.push({
+            estacion,
+            series: [serie]
+          })
+        }
+      }
+    }
+
+    // Ordenar las series temporales por fechaHoraInicioRegistroMuestras
+    for (const grupo of seriesPorEstacion) {
+      grupo.series.sort((a, b) =>
+        a.getFechaHoraInicioRegistroMuestras().getTime() -
+        b.getFechaHoraInicioRegistroMuestras().getTime()
       )
-
-      if (yaExiste) {
-        yaExiste.sismografos.push(sismografo)
-      } else {
-        agrupados.push({
-          estacionSismologica: estacion,
-          sismografos: [sismografo]
-        })
-      }
     }
 
-    return agrupados
+    return seriesPorEstacion
   }
-
-
-  private calcularAlcances(sismografos: Sismografo[]): { estacion: EstacionSismologica, alcance: AlcanceSismo }[] {
-    const estaciones = this.getEstacionSismologica(sismografos)
-    const epicentro = this.getEpicentro()
-    const alcances: { estacion: EstacionSismologica, alcance: AlcanceSismo }[] = []
-
-    for (const estacion of estaciones) {
-      const alcance = AlcanceSismo.setAlcance(estacion, epicentro)
-      if (alcance) {
-        alcances.push({ estacion, alcance })
-      }
-    }
-    return alcances
-  }
-
 }

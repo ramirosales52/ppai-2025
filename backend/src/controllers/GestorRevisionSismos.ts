@@ -45,6 +45,7 @@ export default class GestorRevisionSismos {
       estadoActual: evento.getEstadoActual(),
       magnitudRichter: evento.getMagnitud(),
       historialEstados: evento.getHistorialEstados(),
+      seriesTemporales: evento.getSeriesPorEstacion()
     }
   }
 
@@ -54,11 +55,10 @@ export default class GestorRevisionSismos {
     if (!evento) throw new Error("Evento no encontrado")
 
     return {
-      profundidad: evento.getProfundidad(),
       clasificacion: evento.getClasificacionSismo(),
       origenDeGeneracion: evento.getOrigenDeGeneracion(),
-      alcanceSismo: evento.getAlcances(),
-      estacionesSismologicas: evento.getSismografosAgrupadosPorEstacion(SISMOGRAFOS)
+      // alcanceSismo: evento.getAlcances(),
+      // estacionesSismologicas: evento.getSismografosAgrupadosPorEstacion(SISMOGRAFOS)
       // estacionesSismologicas: evento.getEstacionSismologica(SISMOGRAFOS),
       // sismografosSerie: evento.getSismografoSerie(SISMOGRAFOS),
       // seriesTemporales: evento.getSerieTemporal().sort((a, b) => a.getFechaHoraInicioRegistroMuestras().getTime() - b.getFechaHoraInicioRegistroMuestras().getTime())
