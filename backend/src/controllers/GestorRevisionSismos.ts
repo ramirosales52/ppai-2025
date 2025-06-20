@@ -1,6 +1,5 @@
 import { eventosSismicos, usuarios } from "../data/data";
 import { ESTADOS } from "../data/estados";
-import { SISMOGRAFOS } from "../data/sismografos";
 import Sesion from "../models/Sesion";
 
 export default class GestorRevisionSismos {
@@ -18,38 +17,32 @@ export default class GestorRevisionSismos {
     return Sesion.getSesionActual()
   }
 
-  obtenerEventosSismicosNoRevisados() {
-    return eventosSismicos.filter((evento) => evento.getEstadoActual().esAutoDetectado() || evento.getEstadoActual().esPendienteDeRevision())
-      .sort((a, b) => a.getFechaHoraOcurriencia().getTime() - b.getFechaHoraOcurriencia().getTime())
-      .map((evento) => ({
-        id: evento.getId(),
-        fechaHora: evento.getFechaHoraOcurriencia(),
-        ubicacion: evento.getUbicacion(),
-        valorMagnitud: evento.getValorMagnitud(),
-        estadoActual: evento.getEstadoActual(),
-        magnitudRichter: evento.getMagnitud(),
-        historialEstados: evento.getHistorialEstados()
-      }))
+  // TODO: separar el map en getDatosPrincipales()
+  // NOTE: listo
+  obtenerEventosSismicosAutodetectados() {
+    const eventosAutodetectados = eventosSismicos
+      .filter(evento =>
+        evento.getEstadoActual().esAutoDetectado() ||
+        evento.getEstadoActual().esPendienteDeRevision()
+      ) // Filtra por estado autodetectado o pendiente_de_revision
+      .sort((a, b) =>
+        a.getFechaHoraOcurriencia().getTime() - b.getFechaHoraOcurriencia().getTime()
+      ) // Ordena por fechaHoraOcurriencia
+      .map(evento => evento.getDatosPrincipales()); // Obtiene los datosPrincipales
+
+    return eventosAutodetectados;
   }
+
 
   obtenerEventoPorId(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id)
 
     if (!evento) return
 
-    return {
-      id: evento.getId(),
-      fechaHora: evento.getFechaHoraOcurriencia(),
-      ubicacion: evento.getUbicacion(),
-      valorMagnitud: evento.getValorMagnitud(),
-      estadoActual: evento.getEstadoActual(),
-      magnitudRichter: evento.getMagnitud(),
-      historialEstados: evento.getHistorialEstados(),
-      seriesTemporales: evento.getSeriesPorEstacion()
-    }
+    return evento.getDatosPrincipales()
   }
 
-  obtenerDatos(id: string) {
+  buscarDatosSismicos(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id)
 
     if (!evento) throw new Error("Evento no encontrado")
@@ -57,13 +50,13 @@ export default class GestorRevisionSismos {
     return {
       clasificacion: evento.getClasificacionSismo(),
       origenDeGeneracion: evento.getOrigenDeGeneracion(),
-      // alcanceSismo: evento.getAlcances(),
-      // estacionesSismologicas: evento.getSismografosAgrupadosPorEstacion(SISMOGRAFOS)
-      // estacionesSismologicas: evento.getEstacionSismologica(SISMOGRAFOS),
-      // sismografosSerie: evento.getSismografoSerie(SISMOGRAFOS),
-      // seriesTemporales: evento.getSerieTemporal().sort((a, b) => a.getFechaHoraInicioRegistroMuestras().getTime() - b.getFechaHoraInicioRegistroMuestras().getTime())
+      seriesTemporales: evento.clasificarPorEstacion()
+
+      // TODO: alcanceSismo: evento.getAlcances(),
     }
   }
+
+  // TODO: AGREGAR METODO buscarSeriesTemporales()
 
   actualizarAPendienteRevision() {
     const fechaActual = new Date()
@@ -79,6 +72,7 @@ export default class GestorRevisionSismos {
     }))
   }
 
+  // NOTE: el diagrama dice revisar()
   bloquearEvento(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id)
     if (!evento) throw new Error("Evento no encontrado")
@@ -91,16 +85,17 @@ export default class GestorRevisionSismos {
       estadoActual.esConfirmado() ||
       estadoActual.esRechazado() ||
       estadoActual.esDerivadoExperto()
-    ) return
+    ) return // Se verifica que estadoActual no sea ninguno de esos
 
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
     const empleado = usuario.getRILogueado()
 
+    // WARN: REVISAR
+    // NOTE: esta bien creo
     evento.cambiarEstadoA(ESTADOS.bloqueado_en_revision, empleado)
   }
 
-  actualizarEstadoA(id: string, nuevoEstado: string) {
-    console.log(nuevoEstado)
+  rechazarEvento(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id)
     if (!evento) throw new Error("Evento no encontrado")
 
@@ -111,16 +106,61 @@ export default class GestorRevisionSismos {
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
     const empleado = usuario.getRILogueado()
 
-    switch (nuevoEstado) {
-      case "confirmado":
-        evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
-        break
-      case "derivado_experto":
-        evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
-        break
-      default:
-        evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
-        break
-    }
+    evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
   }
+
+  confirmarEvento(id: string) {
+    const evento = eventosSismicos.find((evento) => evento.getId() === id)
+    if (!evento) throw new Error("Evento no encontrado")
+
+    const estadoActual = evento.getEstadoActual()
+
+    if (!estadoActual.esAmbito("EventoSismico")) return
+
+    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
+    const empleado = usuario.getRILogueado()
+
+    evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
+  }
+
+  derivarEvento(id: string) {
+    const evento = eventosSismicos.find((evento) => evento.getId() === id)
+    if (!evento) throw new Error("Evento no encontrado")
+
+    const estadoActual = evento.getEstadoActual()
+
+    if (!estadoActual.esAmbito("EventoSismico")) return
+
+    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
+    const empleado = usuario.getRILogueado()
+
+    evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
+  }
+
+  // TODO: FIJARSE EL NOMBRE DEL METODO
+  // NOTE: hay que hacer un metodo separado por cada estado ej(rechazarEvento(), confirmarEvento(), etc)
+  // actualizarEstadoA(id: string, nuevoEstado: string) {
+  //   console.log(nuevoEstado)
+  //   const evento = eventosSismicos.find((evento) => evento.getId() === id)
+  //   if (!evento) throw new Error("Evento no encontrado")
+  //
+  //   const estadoActual = evento.getEstadoActual()
+  //
+  //   if (!estadoActual.esAmbito("EventoSismico")) return
+  //
+  //   const usuario = Sesion.getSesionActual().getUsuarioLogueado()
+  //   const empleado = usuario.getRILogueado()
+  //
+  //   switch (nuevoEstado) {
+  //     case "confirmado":
+  //       evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
+  //       break
+  //     case "derivado_experto":
+  //       evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
+  //       break
+  //     default:
+  //       evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
+  //       break
+  //   }
+  // }
 }

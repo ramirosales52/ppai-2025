@@ -57,7 +57,7 @@ export const SERIES_TEMPORALES = {
     new Date("2025-03-03T14:40:00"),
     50,
     muestrasSerie2,
-    SISMOGRAFOS.sismografo1
+    SISMOGRAFOS.sismografo3
   ),
   serieTemporal3: new SerieTemporal(
     new Date("2025-03-03T14:30:00"),

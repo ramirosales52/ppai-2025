@@ -73,7 +73,6 @@ interface Sismografo {
   fechaAdquisicion: Date,
   identificadorSismografo: string,
   nroSerie: number,
-  serieTemporal: SerieTemporal[]
 }
 
 interface EstacionesSismologicas {
@@ -86,6 +85,11 @@ interface HistorialEstados {
   estado: Estado,
   fechaHoraInicio: Date,
   fechaHoraFin: Date
+}
+
+interface SeriesTemporales {
+  estacionSismologica: EstacionSismologica,
+  serieTemporal: SerieTemporal[]
 }
 
 interface DatosEvento {

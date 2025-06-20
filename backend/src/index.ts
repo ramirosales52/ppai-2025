@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import GestorRevisionSismos from './controllers/GestorRevisionSismos'
+import { eventosSismicos } from './data/data'
 
 dotenv.config()
 
@@ -19,7 +20,7 @@ gestor.iniciarSesion("juan1.p", "123abc")
 // Ruta para obtener todos los eventos sismicos auto detectados no revisados
 app.get('/eventos-sismicos', (req: express.Request, res: express.Response) => {
   gestor.actualizarAPendienteRevision()
-  const eventosSismicos = gestor.obtenerEventosSismicosNoRevisados()
+  const eventosSismicos = gestor.obtenerEventosSismicosAutodetectados()
 
   if (eventosSismicos.length === 0) {
     res.status(404).json({ message: "No hay eventos sísmicos" })
@@ -44,7 +45,7 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
   }
 
   const eventoActualizado = gestor.obtenerEventoPorId(id)
-  const datosEvento = gestor.obtenerDatos(id)
+  const datosEvento = gestor.buscarDatosSismicos(id)
 
   res.json({
     evento: eventoActualizado,
@@ -78,7 +79,17 @@ app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) 
   const { nuevoEstado } = req.body
 
   try {
-    gestor.actualizarEstadoA(id, nuevoEstado)
+    switch (nuevoEstado) {
+      case "confirmado":
+        gestor.confirmarEvento(id)
+        break;
+      case "derivado_experto":
+        gestor.derivarEvento(id)
+        break
+      default:
+        gestor.rechazarEvento(id)
+        break;
+    }
     res.status(200).json({ message: "Estado actualizado correctamente" })
   } catch (error) {
     console.log(error)

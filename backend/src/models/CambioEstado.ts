@@ -31,7 +31,7 @@ export default class CambioEstado {
     return this.empleadoResponsable
   }
 
-  getEstado() {
+  getEstado(): Estado {
     return this.estado
   }
 

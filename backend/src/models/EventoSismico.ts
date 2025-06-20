@@ -12,7 +12,7 @@ import SerieTemporal from "./SerieTemporal"
 
 type SeriesPorEstacion = {
   estacion: EstacionSismologica;
-  series: SerieTemporal[];
+  seriesTemporales: SerieTemporal[];
 };
 
 export default class EventoSismico {
@@ -27,11 +27,11 @@ export default class EventoSismico {
   private profundidad: number
   private valorMagnitud: number
   private magnitud: MagnitudRichter
+  private estadoActual: Estado
   private cambioEstado: CambioEstado[] = []
   private clasificacionSismo: ClasificacionSismo
   private origenDeGeneracion: OrigenDeGeneracion
   private serieTemporal: SerieTemporal[]
-  // private alcances: { estacion: EstacionSismologica, alcance: AlcanceSismo }[]
 
 
   constructor(
@@ -75,6 +75,7 @@ export default class EventoSismico {
     )
 
     this.cambioEstado = [estadoInicial]
+    this.estadoActual = estadoInicial.getEstado()
 
     this.magnitud = MagnitudRichter.setMagnitudRichter(valorMagnitud)
     this.clasificacionSismo = ClasificacionSismo.setClasificacionSismo(profundidad)
@@ -86,22 +87,6 @@ export default class EventoSismico {
 
   getFechaHoraOcurriencia() {
     return this.fechaHoraOcurriencia
-  }
-
-  getUbicacion() {
-    return {
-      latitudEpicentro: this.latitudEpicentro,
-      latitudHipocentro: this.latitudHipocentro,
-      longitudEpicentro: this.longitudEpicentro,
-      longitudHipocentro: this.longitudHipocentro
-    }
-  }
-
-  getEpicentro() {
-    return {
-      latitud: this.latitudEpicentro,
-      longitud: this.longitudEpicentro
-    }
   }
 
   getValorMagnitud() {
@@ -124,14 +109,48 @@ export default class EventoSismico {
     return this.origenDeGeneracion
   }
 
+  getLatitudEpicentro() {
+    return this.latitudEpicentro
+  }
+
+  getLatitudHipocentro() {
+    return this.latitudHipocentro
+  }
+
+  getLongitudEpicentro() {
+    return this.longitudEpicentro
+  }
+
+  getLongitudHipocentro() {
+    return this.longitudHipocentro
+  }
+
+  getDatosPrincipales() {
+    return {
+      fechaHoraOcurriencia: this.fechaHoraOcurriencia,
+      latitudEpicentro: this.latitudEpicentro,
+      latitudHipocentro: this.latitudHipocentro,
+      longitudEpicentro: this.longitudEpicentro,
+      longitudHipocentro: this.longitudHipocentro,
+      valorMagnitud: this.valorMagnitud,
+      estadoActual: this.estadoActual,
+      cambioEstado: this.cambioEstado
+    }
+  }
+
   // getAlcances() {
   //   return this.alcances
   // }
 
-  getEstadoActual(): Estado {
-    const actual = this.cambioEstado.find(evento => evento.esEstadoActual())
+  // setea el atributo estadoActual al ultimo estado de la lista de cambioEstado
+  setEstadoActual() {
+    const actual = this.cambioEstado.find(estado => estado.esEstadoActual())
     if (!actual) throw new Error("No hay estado")
-    return actual?.getEstado() // Devuelve la instancia de Estado activa
+    this.estadoActual = actual.getEstado()
+  }
+
+  getEstadoActual(): Estado {
+    return this.estadoActual
   }
 
   getHistorialEstados(): CambioEstado[] {
@@ -143,10 +162,10 @@ export default class EventoSismico {
   }
 
   cambiarEstadoA(nuevoEstado: Estado, empleado: Empleado | null = null) {
-    const fechaHoraActual = new Date()
+    const fechaHoraActual = new Date() // fecha actual
 
     // Si es estado actual lo finaliza (setea la fecha hora actual como fecha hora fin)
-    const estadoActual = this.cambioEstado.find((evento) => evento.esEstadoActual())
+    const estadoActual = this.cambioEstado.find((estado) => estado.esEstadoActual())
     if (estadoActual) {
       estadoActual.setFechaHoraFin(fechaHoraActual)
     }
@@ -154,12 +173,12 @@ export default class EventoSismico {
     // Genera una nueva instancia de CambioEstado y agrega el nuevo estado a la lista
     const cambioEstado = new CambioEstado(nuevoEstado, fechaHoraActual, null, empleado)
     this.cambioEstado.push(cambioEstado)
-
+    this.setEstadoActual()
   }
 
   actualizarAPendienteRevision(fechaActual: Date) {
-    const haceCuanto = fechaActual.getTime() - this.getFechaHoraOcurriencia().getTime()
-    const cincoMinutos = 5 * 60 * 1000
+    const haceCuanto = fechaActual.getTime() - this.getFechaHoraOcurriencia().getTime() // Obtiene el tiempo que paso entre que se creo el evento y la fechaActual
+    const cincoMinutos = 5 * 60 * 1000 // Conversion 5min
 
     // Si pasan 5min cambia el estado a "pendiente_de_revision"
     if (this.getEstadoActual().esAutoDetectado() && haceCuanto >= cincoMinutos) {
@@ -168,25 +187,30 @@ export default class EventoSismico {
     }
   }
 
-  getSeriesPorEstacion() {
+  // FIX: REVISAR 
+  // NOTE: esta ok
+  // WARN: esto trae el sismografo tambien y no hace falta
+  // NOTE: en realidad esta bien que traiga el sismografo porque es un atributo de la serieTemporal
+  // y no se especifica que datos se traen
+  clasificarPorEstacion() {
     const seriesPorEstacion: SeriesPorEstacion[] = []
 
-    for (const evento of eventosSismicos) {
-      for (const serie of evento.serieTemporal) {
+    for (const evento of eventosSismicos) { // Recorre los eventos
+      for (const serie of evento.serieTemporal) { // Recorre las series de cada evento
         // Ordenar muestras sismicas por fechaHoraMuestra
         serie.getDatos().muestrasSismicas.sort((a, b) =>
           a.getDatos().fechaHoraMuestra.getTime() - b.getDatos().fechaHoraMuestra.getTime()
         )
 
-        const estacion = serie.getSismografo().getEstacionSismologica()
-        const existente = seriesPorEstacion.find(e => e.estacion.getCodigoEstacion() === estacion.getCodigoEstacion())
+        const estacion = serie.getSismografo().getEstacionSismologica() // Obtiene la estacion de esa SerieTemporal
+        const existente = seriesPorEstacion.find(e => e.estacion.getCodigoEstacion() === estacion.getCodigoEstacion()) // Se fija si esa estacion ya es un grupo
 
-        if (existente) {
-          existente.series.push(serie)
-        } else {
+        if (existente) { // Si lo es, agrega la serie a ese grupo
+          existente.seriesTemporales.push(serie)
+        } else { // Si la estacion no es un grupo, crea un grupo nuevo con la estacion y las series 
           seriesPorEstacion.push({
             estacion,
-            series: [serie]
+            seriesTemporales: [serie]
           })
         }
       }
@@ -194,7 +218,7 @@ export default class EventoSismico {
 
     // Ordenar las series temporales por fechaHoraInicioRegistroMuestras
     for (const grupo of seriesPorEstacion) {
-      grupo.series.sort((a, b) =>
+      grupo.seriesTemporales.sort((a, b) =>
         a.getFechaHoraInicioRegistroMuestras().getTime() -
         b.getFechaHoraInicioRegistroMuestras().getTime()
       )
