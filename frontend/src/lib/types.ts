@@ -1,8 +1,4 @@
 interface Ubicacion {
-  latitudEpicentro: number,
-  latitudHipocentro: number,
-  longitudEpicentro: number,
-  longitudHipocentro: number
 }
 
 interface Estado {
@@ -80,7 +76,7 @@ interface EstacionesSismologicas {
   sismografos: Sismografo[]
 }
 
-interface HistorialEstados {
+interface CambioEstado {
   empleado: Empleado,
   estado: Estado,
   fechaHoraInicio: Date,
@@ -101,13 +97,15 @@ interface DatosEvento {
 }
 
 export interface Evento {
-  id: string,
-  fechaHora: Date,
-  ubicacion: Ubicacion,
-  valorMagnitud: number,
+  cambioEstado: CambioEstado[]
   estadoActual: Estado,
-  magnitudRichter: Richter,
-  historialEstados: HistorialEstados[]
+  fechaHoraOcurriencia: Date,
+  id: string,
+  latitudEpicentro: number,
+  latitudHipocentro: number,
+  longitudEpicentro: number,
+  longitudHipocentro: number
+  valorMagnitud: number,
 }
 
 export interface EventoSismico {

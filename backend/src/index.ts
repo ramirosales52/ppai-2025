@@ -2,7 +2,6 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import GestorRevisionSismos from './controllers/GestorRevisionSismos'
-import { eventosSismicos } from './data/data'
 
 dotenv.config()
 

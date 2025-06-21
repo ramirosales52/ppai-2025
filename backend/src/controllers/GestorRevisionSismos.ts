@@ -50,15 +50,25 @@ export default class GestorRevisionSismos {
     return {
       clasificacion: evento.getClasificacionSismo(),
       origenDeGeneracion: evento.getOrigenDeGeneracion(),
-      seriesTemporales: evento.clasificarPorEstacion()
+      seriesTemporales: this.buscarSeriesTemporales(id)
 
       // TODO: alcanceSismo: evento.getAlcances(),
     }
   }
 
   // TODO: AGREGAR METODO buscarSeriesTemporales()
+  buscarSeriesTemporales(id: string) {
+    const evento = eventosSismicos.find((evento) => evento.getId() === id);
+    if (!evento) throw new Error("Evento no encontrado")
 
-  actualizarAPendienteRevision() {
+    const seriesTemporales = evento.getSerieTemporal()
+
+    const seriesPorEstacion = evento.clasificarPorEstacion(seriesTemporales)
+
+    return seriesPorEstacion;
+  }
+
+  actualizarAPendienteRevision() { // Metodo para actualizar el evento dsp de 5min
     const fechaActual = new Date()
     eventosSismicos.forEach((evento) => {
       evento.actualizarAPendienteRevision(fechaActual)
@@ -137,30 +147,4 @@ export default class GestorRevisionSismos {
     evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
   }
 
-  // TODO: FIJARSE EL NOMBRE DEL METODO
-  // NOTE: hay que hacer un metodo separado por cada estado ej(rechazarEvento(), confirmarEvento(), etc)
-  // actualizarEstadoA(id: string, nuevoEstado: string) {
-  //   console.log(nuevoEstado)
-  //   const evento = eventosSismicos.find((evento) => evento.getId() === id)
-  //   if (!evento) throw new Error("Evento no encontrado")
-  //
-  //   const estadoActual = evento.getEstadoActual()
-  //
-  //   if (!estadoActual.esAmbito("EventoSismico")) return
-  //
-  //   const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-  //   const empleado = usuario.getRILogueado()
-  //
-  //   switch (nuevoEstado) {
-  //     case "confirmado":
-  //       evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
-  //       break
-  //     case "derivado_experto":
-  //       evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
-  //       break
-  //     default:
-  //       evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
-  //       break
-  //   }
-  // }
 }

@@ -65,7 +65,7 @@ export default function EventCard({ evento }: EventCardProps) {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold">{new Date(evento.fechaHora).toLocaleString("es-AR", formatoFecha).replace(',', ' -')}</h3>
+                <h3 className="text-lg font-semibold">{new Date(evento.fechaHoraOcurriencia).toLocaleString("es-AR", formatoFecha).replace(',', ' -')}</h3>
                 <p className="text-sm text-slate-500">ID: {evento.id}</p>
               </div>
               <div className="flex items-center justify-center w-10 h-10 bg-red-100 rounded-full" >
@@ -79,11 +79,11 @@ export default function EventCard({ evento }: EventCardProps) {
                 <p className="font-medium flex gap-4 text-sm">
                   <span className="flex flex-col gap-1">
                     <span className="text-slate-500 text-xs">lat:</span>
-                    {evento.ubicacion.latitudEpicentro.toFixed(4)}
+                    {evento.latitudEpicentro.toFixed(4)}
                   </span>
                   <span className="flex flex-col gap-1">
                     <span className="text-slate-500 text-xs">long:</span>
-                    {evento.ubicacion.longitudEpicentro.toFixed(4)}
+                    {evento.longitudEpicentro.toFixed(4)}
                   </span>
                 </p>
               </div>
@@ -92,18 +92,18 @@ export default function EventCard({ evento }: EventCardProps) {
                 <p className="font-medium flex gap-4 text-sm">
                   <span className="flex flex-col gap-1">
                     <span className="text-slate-500 text-xs">lat:</span>
-                    {evento.ubicacion.latitudHipocentro.toFixed(4)}
+                    {evento.latitudHipocentro.toFixed(4)}
                   </span>
                   <span className="flex flex-col gap-1">
                     <span className="text-slate-500 text-xs">long:</span>
-                    {evento.ubicacion.longitudHipocentro.toFixed(4)}
+                    {evento.longitudHipocentro.toFixed(4)}
                   </span>
                 </p>
               </div>
               <div>
                 <p className="text-sm text-slate-950">Magnitud</p>
                 <p className="font-medium">
-                  {evento.valorMagnitud} ({evento.magnitudRichter.descripcionMagnitud.replace('_', ' ')})
+                  {evento.valorMagnitud}
                 </p>
               </div>
             </div>

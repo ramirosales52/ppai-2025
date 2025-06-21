@@ -127,6 +127,7 @@ export default class EventoSismico {
 
   getDatosPrincipales() {
     return {
+      id: this.id,
       fechaHoraOcurriencia: this.fechaHoraOcurriencia,
       latitudEpicentro: this.latitudEpicentro,
       latitudHipocentro: this.latitudHipocentro,
@@ -192,27 +193,28 @@ export default class EventoSismico {
   // WARN: esto trae el sismografo tambien y no hace falta
   // NOTE: en realidad esta bien que traiga el sismografo porque es un atributo de la serieTemporal
   // y no se especifica que datos se traen
-  clasificarPorEstacion() {
-    const seriesPorEstacion: SeriesPorEstacion[] = []
 
-    for (const evento of eventosSismicos) { // Recorre los eventos
-      for (const serie of evento.serieTemporal) { // Recorre las series de cada evento
-        // Ordenar muestras sismicas por fechaHoraMuestra
-        serie.getDatos().muestrasSismicas.sort((a, b) =>
-          a.getDatos().fechaHoraMuestra.getTime() - b.getDatos().fechaHoraMuestra.getTime()
-        )
+  clasificarPorEstacion(series: SerieTemporal[]) {
+    const seriesPorEstacion: SeriesPorEstacion[] = [];
 
-        const estacion = serie.getSismografo().getEstacionSismologica() // Obtiene la estacion de esa SerieTemporal
-        const existente = seriesPorEstacion.find(e => e.estacion.getCodigoEstacion() === estacion.getCodigoEstacion()) // Se fija si esa estacion ya es un grupo
+    for (const serie of series) {
+      // Ordenar muestras sismicas por fechaHoraMuestra
+      serie.getDatos().muestrasSismicas.sort((a, b) =>
+        a.getDatos().fechaHoraMuestra.getTime() - b.getDatos().fechaHoraMuestra.getTime()
+      );
 
-        if (existente) { // Si lo es, agrega la serie a ese grupo
-          existente.seriesTemporales.push(serie)
-        } else { // Si la estacion no es un grupo, crea un grupo nuevo con la estacion y las series 
-          seriesPorEstacion.push({
-            estacion,
-            seriesTemporales: [serie]
-          })
-        }
+      const estacion = serie.getSismografo().getEstacionSismologica();
+      const existente = seriesPorEstacion.find(
+        e => e.estacion.getCodigoEstacion() === estacion.getCodigoEstacion()
+      );
+
+      if (existente) {
+        existente.seriesTemporales.push(serie);
+      } else {
+        seriesPorEstacion.push({
+          estacion,
+          seriesTemporales: [serie]
+        });
       }
     }
 
@@ -221,9 +223,10 @@ export default class EventoSismico {
       grupo.seriesTemporales.sort((a, b) =>
         a.getFechaHoraInicioRegistroMuestras().getTime() -
         b.getFechaHoraInicioRegistroMuestras().getTime()
-      )
+      );
     }
 
-    return seriesPorEstacion
+    return seriesPorEstacion;
   }
+
 }
