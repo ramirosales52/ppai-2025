@@ -131,7 +131,7 @@ export default class GestorRevisionSismos {
   }
 
   rechazarEventoSismico(id: string) {
-    const estadoRechazado = this.buscarEstadoBloqueado()
+    const estadoRechazado = this.buscarEstadoRechazado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
     const fechaActual = this.tomarFechaHoraActual()
@@ -151,7 +151,7 @@ export default class GestorRevisionSismos {
   }
 
   confirmarEventoSismico(id: string) {
-    const estadoConfirmado = this.buscarEstadoBloqueado()
+    const estadoConfirmado = this.buscarEstadoConfirmado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
     const fechaActual = this.tomarFechaHoraActual()
@@ -170,7 +170,7 @@ export default class GestorRevisionSismos {
     )
   }
   derivarEventoSismico(id: string) {
-    const estadoDerivado = this.buscarEstadoBloqueado()
+    const estadoDerivado = this.buscarEstadoDerivado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
     const fechaActual = this.tomarFechaHoraActual()

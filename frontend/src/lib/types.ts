@@ -33,14 +33,14 @@ interface SerieTemporal {
 }
 
 interface SeriesTemporales {
-  estacionSismologica: EstacionSismologica,
-  serieTemporal: SerieTemporal[]
+  estacion: EstacionSismologica,
+  seriesTemporales: SerieTemporal[]
 }
 
 interface DatosSismicos {
+  alcance: string,
   clasificacion: string,
   origenDeGeneracion: string,
-  alcanceSismo: string,
 }
 
 export interface DatosPrincipales {
@@ -57,6 +57,6 @@ export interface DatosPrincipales {
 export interface Evento {
   datosPrincipales: DatosPrincipales,
   datosSismicos: DatosSismicos,
-  seriesTemporales: SeriesTemporales
+  seriesTemporales: SeriesTemporales[]
 }
 

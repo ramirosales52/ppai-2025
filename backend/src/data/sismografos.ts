@@ -33,37 +33,27 @@ export const SISMOGRAFOS = {
     ESTADOS.en_linea,
     ESTACIONES_SISMOLOGICAS.estacionSismologica2,
   ),
-  // new Sismografo(
-  //   new Date("2022-02-01"),
-  //   "SIS-004",
-  //   98760,
-  //   ESTADOS.en_linea,
-  //   ESTACIONES_SISMOLOGICAS.estacionSismologica2,
-  //   [
-  //     SERIES_TEMPORALES.serieTemporal2,
-  //   ]
-  // ),
-  //
-  // // Para EST-003
-  // new Sismografo(
-  //   new Date("2023-06-15"),
-  //   "SIS-005",
-  //   11223,
-  //   ESTADOS.en_linea,
-  //   ESTACIONES_SISMOLOGICAS.estacionSismologica3,
-  //   [
-  //     SERIES_TEMPORALES.serieTemporal1
-  //   ]
-  // ),
-  // new Sismografo(
-  //   new Date("2024-01-10"),
-  //   "SIS-006",
-  //   33211,
-  //   ESTADOS.en_linea,
-  //   ESTACIONES_SISMOLOGICAS.estacionSismologica3,
-  //   [
-  //     SERIES_TEMPORALES.serieTemporal1,
-  //     SERIES_TEMPORALES.serieTemporal2
-  //   ]
-  // )
+  sismografo4: new Sismografo(
+    new Date("2022-02-01"),
+    "SIS-004",
+    98760,
+    ESTADOS.en_linea,
+    ESTACIONES_SISMOLOGICAS.estacionSismologica2,
+  ),
+
+  // Para EST-003
+  sismografo5: new Sismografo(
+    new Date("2023-06-15"),
+    "SIS-005",
+    11223,
+    ESTADOS.en_linea,
+    ESTACIONES_SISMOLOGICAS.estacionSismologica3,
+  ),
+  sismografo6: new Sismografo(
+    new Date("2024-01-10"),
+    "SIS-006",
+    33211,
+    ESTADOS.en_linea,
+    ESTACIONES_SISMOLOGICAS.estacionSismologica3,
+  )
 }

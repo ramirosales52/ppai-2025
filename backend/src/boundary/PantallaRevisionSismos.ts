@@ -44,7 +44,7 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
       !evento.getEstadoActual().esBloqueadoEnRevision() &&
       !evento.getEstadoActual().esConfirmado() &&
       !evento.getEstadoActual().esRechazado() &&
-      !evento.getEstadoActual().esPendienteDeRevision()
+      !evento.getEstadoActual().esDerivadoExperto()
     ) {
       gestor.bloquearEventoSismico(id)
     }
@@ -69,13 +69,14 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
 app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) => {
   const id = req.params.id
   const { nuevoEstado } = req.body
+  console.log(nuevoEstado)
 
   try {
     if (nuevoEstado === "rechazado") {
       gestor.rechazarEventoSismico(id)
     } else if (nuevoEstado === "confirmado") {
       gestor.confirmarEventoSismico(id)
-    } else {
+    } else if (nuevoEstado === "derivado_experto") {
       gestor.derivarEventoSismico(id)
     }
     res.status(200).json({ message: "Estado actualizado correctamente" })

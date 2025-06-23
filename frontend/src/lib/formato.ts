@@ -8,7 +8,6 @@ export const formatoFecha: Intl.DateTimeFormatOptions = {
   hour12: false,
 }
 
-
 export const formatear = (str: string) =>
   str
     .replace(/_/g, ' ')

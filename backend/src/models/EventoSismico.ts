@@ -239,7 +239,7 @@ export default class EventoSismico {
   }
 
   // Paso 65 - rechazar este evento
-  rechazar(fechaActual: Date, empleado: Empleado, estadoBloqueado: Estado) {
+  rechazar(fechaActual: Date, empleado: Empleado, estadoRechazado: Estado) {
     // Paso 66 - busca el ultimo cambio de estado
     const ultimoCambio = this.buscarUltimoCambioEstado();
 
@@ -251,7 +251,7 @@ export default class EventoSismico {
       }
     }
     // Paso 69 - se crea el cambio de estado
-    const nuevoCambio = this.crearCambioEstado(fechaActual, empleado, estadoBloqueado);
+    const nuevoCambio = this.crearCambioEstado(fechaActual, empleado, estadoRechazado);
 
     // Se añade el nuevo cambio al historial
     this.cambioEstado.push(nuevoCambio);
@@ -259,7 +259,7 @@ export default class EventoSismico {
     this.estadoActual = nuevoCambio.getEstado();
   }
 
-  confirmar(fechaActual: Date, empleado: Empleado, estadoBloqueado: Estado) {
+  confirmar(fechaActual: Date, empleado: Empleado, estadoConfirmado: Estado) {
     const ultimoCambio = this.buscarUltimoCambioEstado();
 
     if (ultimoCambio) {
@@ -267,7 +267,7 @@ export default class EventoSismico {
         ultimoCambio.setFechaHoraFin(fechaActual);
       }
     }
-    const nuevoCambio = this.crearCambioEstado(fechaActual, empleado, estadoBloqueado);
+    const nuevoCambio = this.crearCambioEstado(fechaActual, empleado, estadoConfirmado);
 
     // Se añade el nuevo cambio al historial
     this.cambioEstado.push(nuevoCambio);
@@ -275,7 +275,7 @@ export default class EventoSismico {
     this.estadoActual = nuevoCambio.getEstado();
   }
 
-  derivar(fechaActual: Date, empleado: Empleado, estadoBloqueado: Estado) {
+  derivar(fechaActual: Date, empleado: Empleado, estadoDerivado: Estado) {
     const ultimoCambio = this.buscarUltimoCambioEstado();
 
     if (ultimoCambio) {
@@ -283,12 +283,13 @@ export default class EventoSismico {
         ultimoCambio.setFechaHoraFin(fechaActual);
       }
     }
-    const nuevoCambio = this.crearCambioEstado(fechaActual, empleado, estadoBloqueado);
+    const nuevoCambio = this.crearCambioEstado(fechaActual, empleado, estadoDerivado);
 
     // Se añade el nuevo cambio al historial
     this.cambioEstado.push(nuevoCambio);
     // Se actualiza el puntero al estado actual del evento
     this.estadoActual = nuevoCambio.getEstado();
+    console.log(this.estadoActual)
   }
 
   // --- Metodos auxiliares ---
