@@ -69,6 +69,9 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
 app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) => {
   const id = req.params.id
   const { nuevoEstado } = req.body
+  const evento = gestor.tomarSeleccionEventoSismico(id)
+
+  if (!evento) return
 
   try {
     if (nuevoEstado === "rechazado") {
@@ -78,7 +81,13 @@ app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) 
     } else if (nuevoEstado === "derivado_experto") {
       gestor.derivarEventoSismico(id)
     } else {
-      gestor.cancelar(id)
+      if (
+        !evento.getEstadoActual().esConfirmado() &&
+        !evento.getEstadoActual().esRechazado() &&
+        !evento.getEstadoActual().esDerivadoExperto()
+      ) { // Evitar que se cancele el caso de uso en caso de ya haberlo revisado
+        gestor.cancelar(id)
+      }
     }
     res.status(200).json({ message: "Estado actualizado correctamente" })
   } catch (error) {
