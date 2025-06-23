@@ -289,7 +289,6 @@ export default class EventoSismico {
     this.cambioEstado.push(nuevoCambio);
     // Se actualiza el puntero al estado actual del evento
     this.estadoActual = nuevoCambio.getEstado();
-    console.log(this.estadoActual)
   }
 
   // Flujo Alternativo A8
@@ -315,7 +314,6 @@ export default class EventoSismico {
     this.cambioEstado.push(nuevoCambio);
     // Se actualiza el puntero al estado actual del evento
     this.estadoActual = nuevoCambio.getEstado();
-    console.log(this.estadoActual)
   }
 
   // --- Metodos auxiliares ---

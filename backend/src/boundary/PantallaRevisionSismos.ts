@@ -69,7 +69,6 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
 app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) => {
   const id = req.params.id
   const { nuevoEstado } = req.body
-  console.log(nuevoEstado)
 
   try {
     if (nuevoEstado === "rechazado") {

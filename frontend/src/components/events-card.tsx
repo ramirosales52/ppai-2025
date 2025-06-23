@@ -5,7 +5,6 @@ import { Activity, Brain, CheckCircle2, XCircle } from "lucide-react"
 import type { DatosPrincipales } from "@/lib/types"
 import { Link } from "react-router"
 import { formatoFecha } from "@/lib/formato"
-import { useEffect } from "react"
 
 interface EventCardProps {
   evento: DatosPrincipales,
@@ -52,11 +51,6 @@ export default function EventCard({ evento }: EventCardProps) {
         )
     }
   }
-
-  useEffect(() => {
-    console.log(evento);
-  }, [])
-
 
   return (
     <Card className="overflow-hidden p-0 transition-all hover:shadow-md" >
