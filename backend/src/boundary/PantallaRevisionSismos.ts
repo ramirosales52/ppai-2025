@@ -78,6 +78,8 @@ app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) 
       gestor.confirmarEventoSismico(id)
     } else if (nuevoEstado === "derivado_experto") {
       gestor.derivarEventoSismico(id)
+    } else {
+      gestor.cancelar(id)
     }
     res.status(200).json({ message: "Estado actualizado correctamente" })
   } catch (error) {

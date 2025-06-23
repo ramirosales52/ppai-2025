@@ -181,6 +181,33 @@ export default class GestorRevisionSismos {
     eventoSeleccionado.derivar(fechaActual, empleadoLogueado, estadoDerivado)
   }
 
+  buscarEstadoAutoDetectado(): Estado | undefined {
+    const estados = Object.values(ESTADOS)
+    return estados.find(
+      (estado) => estado.esAmbitoEventoSismico() && estado.esAutoDetectado()
+    )
+  }
+
+  buscarEstadoPendienteDeRevision(): Estado | undefined {
+    const estados = Object.values(ESTADOS)
+    return estados.find(
+      (estado) => estado.esAmbitoEventoSismico() && estado.esPendienteDeRevision()
+    )
+  }
+
+  cancelar(id: string) {
+    const estadoAutoDetectado = this.buscarEstadoAutoDetectado()
+    const estadoPendiente = this.buscarEstadoPendienteDeRevision()
+    const eventoSeleccionado = this.buscarEventoSismico(id)
+    const fechaActual = this.tomarFechaHoraActual()
+
+    if (!eventoSeleccionado) return
+    if (!estadoAutoDetectado) return
+    if (!estadoPendiente) return
+
+    eventoSeleccionado.cancelar(fechaActual, estadoAutoDetectado, estadoPendiente)
+  }
+
   // --------- Metodos auxiliares ---------
   iniciarSesion(nombreUsuario: string, contraseña: string) { // Metodo que inicia la sesion
     const usuario = usuarios.find((usuario) => usuario.getNombreUsuario() === nombreUsuario && usuario.getContraseña() === contraseña)
@@ -193,9 +220,13 @@ export default class GestorRevisionSismos {
   }
 
   actualizarAPendienteRevision() { // Metodo para actualizar el evento dsp de 5min
-    const fechaActual = new Date()
+    const estadoPendiente = this.buscarEstadoPendienteDeRevision()
+    const fechaActual = this.tomarFechaHoraActual()
+
+    if (!estadoPendiente) return
+
     eventosSismicos.forEach((evento) => {
-      evento.actualizarAPendienteRevision(fechaActual)
+      evento.actualizarAPendienteRevision(fechaActual, estadoPendiente)
     })
   }
 }

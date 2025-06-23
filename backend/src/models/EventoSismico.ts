@@ -292,13 +292,39 @@ export default class EventoSismico {
     console.log(this.estadoActual)
   }
 
-  // --- Metodos auxiliares ---
-  actualizarAPendienteRevision(fechaActual: Date) { // Metodo para actualizar a pendiente_de_revision automaticamente
+  // Flujo Alternativo A8
+  cancelar(fechaActual: Date, estadoAutoDetectado: Estado, estadoPendiente: Estado) {
     const haceCuanto = fechaActual.getTime() - this.fechaHoraOcurrencia.getTime()
-    const cincoMinutos = 1 * 60 * 1000
+    const cincoMinutos = 5 * 60 * 1000
+
+    const estado = haceCuanto >= cincoMinutos // Verifica si pasaron 5min desde que se creo el evento
+      ? estadoPendiente // Si pasaron, cambia el estado a pendiente_de_revision
+      : estadoAutoDetectado; // Si no, cambia el estado a auto_detectado
+
+    const ultimoCambio = this.buscarUltimoCambioEstado();
+
+    if (ultimoCambio) {
+      if (ultimoCambio.esEstadoActual()) {
+        ultimoCambio.setFechaHoraFin(fechaActual);
+      }
+    }
+
+    const nuevoCambio = this.crearCambioEstado(fechaActual, null, estado);
+
+    // Se añade el nuevo cambio al historial
+    this.cambioEstado.push(nuevoCambio);
+    // Se actualiza el puntero al estado actual del evento
+    this.estadoActual = nuevoCambio.getEstado();
+    console.log(this.estadoActual)
+  }
+
+  // --- Metodos auxiliares ---
+  actualizarAPendienteRevision(fechaActual: Date, estadoPendiente: Estado) { // Metodo para actualizar a pendiente_de_revision automaticamente
+    const haceCuanto = fechaActual.getTime() - this.fechaHoraOcurrencia.getTime()
+    const cincoMinutos = 5 * 60 * 1000
 
     // Si pasan 5min cambia el estado a "pendiente_de_revision"
-    if (this.getEstadoActual().esAutoDetectado() && haceCuanto >= cincoMinutos) {
+    if (this.estadoActual.esAutoDetectado() && haceCuanto >= cincoMinutos) {
 
       const ultimoCambio = this.buscarUltimoCambioEstado();
 
@@ -310,7 +336,7 @@ export default class EventoSismico {
       }
 
       // Al empleado le pasamos null porque lo hace el sistema automaticamente
-      const nuevoCambio = this.crearCambioEstado(fechaActual, null, ESTADOS.pendiente_de_revision);
+      const nuevoCambio = this.crearCambioEstado(fechaActual, null, estadoPendiente);
 
       // Se añade el nuevo cambio al historial
       this.cambioEstado.push(nuevoCambio);

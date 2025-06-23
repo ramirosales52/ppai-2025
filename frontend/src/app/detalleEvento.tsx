@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import axios from "axios"
 import { Check, X, BrainIcon, ArrowLeft, CheckCircle2, XCircle, Lock, MapPin, Map, Activity, Calendar, RadioTower, Clock, Pen } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router"
+import { Link, useNavigate, useParams } from "react-router"
 import { formatear, formatoFecha } from "@/lib/formato"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { toast, Toaster } from "sonner"
@@ -17,6 +17,7 @@ export default function DetalleEvento() {
   const [eventoSismico, setEventoSismico] = useState<Evento | null>(null)
   const [loading, setLoading] = useState(true)
   const [mostrarMapa, setMostrarMapa] = useState(false)
+  const navigate = useNavigate()
 
   const fetchEvento = async () => {
     try {
@@ -71,6 +72,17 @@ export default function DetalleEvento() {
     }
   }
 
+  const tomarCancelacion = async () => {
+    try {
+      await axios.post(`http://localhost:3000/eventos-sismicos/${id}`, {
+        nuevoEstado: "cancelado"
+      })
+      await navigate("/eventos-sismicos")
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   if (!eventoSismico) return null
 
   const getEstadoActual = () => {
@@ -120,11 +132,9 @@ export default function DetalleEvento() {
         <div className="container py-4 mx-auto max-w-7xl">
           {/* --- Boton atras --- */}
           <div className="flex items-center mb-6 space-x-2">
-            <Link to="/eventos-sismicos">
-              <Button variant="ghost" size="icon" className="cursor-pointer">
-                <ArrowLeft />
-              </Button>
-            </Link>
+            <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => tomarCancelacion()}>
+              <ArrowLeft />
+            </Button>
             <h1 className="text-xl font-bold">Revisión evento sísmico</h1>
           </div>
           {/* --- --- */}

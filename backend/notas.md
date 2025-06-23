@@ -13,7 +13,7 @@ FLUJOS ALTERNATIVOS:
 
 - [x] A1: No hay sismos autodectados que aun no han sido revisados.
 - [ ] A2: El AS modifica los datos del evento sismico.
-- [x] A3: El AS selecciona la opcion Rechazar evento.
+- [x] A3: El AS selecciona la opcion Confirmar evento.
 - [x] A4: El AS selecciona la opcion Solicitar revision a experto.
 - [ ] A5: El AS no completa los datos minimos.
 - [x] A6: Si la opción seleccionada es Confirmar evento, se actualiza el estado del evento sísmico a confirmado, registrando la fecha
@@ -21,4 +21,4 @@ FLUJOS ALTERNATIVOS:
       y el AS logueado como responsable.
 - [x] A7: Si la opción seleccionada es Solicitar revisión a experto, se actualiza el estado del evento sísmico a derivado a experto,
       registrando la fecha y hora actual, y el AS logueado.
-- [ ] A8: El actor cancela la ejecucion del caso de uso.
+- [x] A8: El actor cancela la ejecucion del caso de uso.
