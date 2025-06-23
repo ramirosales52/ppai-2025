@@ -8,16 +8,13 @@ type Coordenadas = { latitud: number, longitud: number }
 export default class AlcanceSismo {
   // private descripcion: string
   private nombre: Alcance
-  private distancia: number
 
   constructor(
     // descripcion: string,
     nombre: Alcance,
-    distancia: number
   ) {
     // this.descripcion = descripcion
-    this.nombre = nombre,
-      this.distancia = distancia
+    this.nombre = nombre
   }
 
   getNombre() {
@@ -34,8 +31,8 @@ export default class AlcanceSismo {
 
     const distancia = Math.round(Math.sqrt(dLat * dLat + dLong * dLong) * kmPorGrado * 100) / 100
 
-    if (distancia <= 100) return new AlcanceSismo("local", distancia)
-    if (distancia <= 1000) return new AlcanceSismo("regional", distancia)
-    return new AlcanceSismo("tele_sismo", distancia)
+    if (distancia <= 100) return new AlcanceSismo("local")
+    if (distancia <= 1000) return new AlcanceSismo("regional")
+    return new AlcanceSismo("tele_sismo")
   }
 }

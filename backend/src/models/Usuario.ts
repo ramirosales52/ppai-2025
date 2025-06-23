@@ -23,7 +23,7 @@ export default class Usuario {
     return this.contraseña
   }
 
-  getRILogueado(): Empleado {
+  getEmpleado(): Empleado {
     return this.empleado
   }
 }

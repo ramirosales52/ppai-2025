@@ -1,5 +1,8 @@
 import { eventosSismicos, usuarios } from "../data/data";
 import { ESTADOS } from "../data/estados";
+import Empleado from "../models/Empleado";
+import Estado from "../models/Estado";
+import EventoSismico from "../models/EventoSismico";
 import Sesion from "../models/Sesion";
 
 export default class GestorRevisionSismos {
@@ -17,42 +20,92 @@ export default class GestorRevisionSismos {
     return Sesion.getSesionActual()
   }
 
-  // TODO: separar el map en getDatosPrincipales()
-  // NOTE: listo
-  obtenerEventosSismicosAutodetectados() {
-    const eventosAutodetectados = eventosSismicos
-      .filter(evento =>
-        evento.getEstadoActual().esAutoDetectado() ||
-        evento.getEstadoActual().esPendienteDeRevision()
-      ) // Filtra por estado autodetectado o pendiente_de_revision
-      .sort((a, b) =>
-        a.getFechaHoraOcurriencia().getTime() - b.getFechaHoraOcurriencia().getTime()
-      ) // Ordena por fechaHoraOcurriencia
-      .map(evento => evento.getDatosPrincipales()); // Obtiene los datosPrincipales
+  // Utiliza la fuente de datos real de eventos sismicos
+  private readonly eventos: EventoSismico[] = eventosSismicos;
 
-    return eventosAutodetectados;
+  // Paso 4 – filtrar
+  buscarEventosSismicosAutoDetectados() {
+    return this.eventos.filter(
+      (evento) => evento.esAutodetectado() || evento.esPendienteDeRevision(),
+    )
   }
 
+  // Paso 16 – ordenar
+  private ordenarEventosSismicos(eventos: EventoSismico[]): EventoSismico[] {
+    return [...eventos].sort(
+      (a, b) => a.getFechaHoraOcurrencia().getTime() - b.getFechaHoraOcurrencia().getTime(),
+    )
+  }
 
-  obtenerEventoPorId(id: string) {
+  // Paso 17 – obtener datos principales para la UI
+  public mostrarEventosSismicosParaSeleccion(): any[] {
+    const candidatos = this.buscarEventosSismicosAutoDetectados() // Eventos con estado autodetectado o pendiente_de_revision
+    const ordenados = this.ordenarEventosSismicos(candidatos) // Eventos candidatos ordenados por fechaHoraOcurrencia
+    return ordenados.map((e) => e.getDatosPrincipales()) // Devuelve los datos principales
+  }
+
+  // Paso 19 - tomar seleccion del usuario
+  tomarSeleccionEventoSismico(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id)
 
     if (!evento) return
 
-    return evento.getDatosPrincipales()
+    return evento
   }
 
+  // Paso 20 - buscar estado bloqueado
+  buscarEstadoBloqueado(): Estado | undefined {
+    const estados = Object.values(ESTADOS)
+    return estados.find(
+      (estado) => estado.esAmbitoEventoSismico() && estado.esBloqueadoEnRevision() // Paso 21 y 22
+    )
+  }
+
+  // Paso 23 - fecha actual
+  tomarFechaHoraActual() {
+    return new Date
+  }
+
+  // Paso 24 - buscar empleado logueado
+  public buscarEmpleadoLogueado(): Empleado {
+    const sesion = Sesion.getSesionActual() // Obtener la sesion actual
+    const usuario = sesion.getUsuarioLogueado() // Paso 25
+    const empleado = usuario.getEmpleado() // Paso 26
+    return empleado
+  }
+
+  private buscarEventoSismico(id: string): EventoSismico | undefined {
+    return this.eventosDisponibles.find(e => e['id'] === id);
+  }
+  private get eventosDisponibles(): EventoSismico[] {
+    return this.eventos.filter(evento => evento.getEstadoActual().esAmbitoEventoSismico());
+  }
+
+  // Paso 27 - bloquear evento
+  bloquearEventoSismico(eventoId: string) {
+    const estadoBloqueado = this.buscarEstadoBloqueado()
+    const eventoSeleccionado = this.buscarEventoSismico(eventoId)
+    const empleadoLogueado = this.buscarEmpleadoLogueado()
+    const fechaActual = this.tomarFechaHoraActual()
+
+    if (!eventoSeleccionado) return
+    if (!estadoBloqueado) return
+
+    eventoSeleccionado.bloquear(fechaActual, empleadoLogueado, estadoBloqueado);
+  }
+
+  // Paso 35 - buscar datos sismiscos (alcance, clasificacion, origen)
   buscarDatosSismicos(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id)
 
     if (!evento) throw new Error("Evento no encontrado")
 
     return {
+      alcanceSismo: evento.getAlcance(),
       clasificacion: evento.getClasificacionSismo(),
       origenDeGeneracion: evento.getOrigenDeGeneracion(),
       seriesTemporales: this.buscarSeriesTemporales(id)
 
-      // TODO: alcanceSismo: evento.getAlcances(),
     }
   }
 
@@ -63,7 +116,7 @@ export default class GestorRevisionSismos {
 
     const seriesTemporales = evento.getSerieTemporal()
 
-    const seriesPorEstacion = evento.clasificarPorEstacion(seriesTemporales)
+    const seriesPorEstacion = evento.clasificarPorEstacion()
 
     return seriesPorEstacion;
   }
@@ -78,7 +131,7 @@ export default class GestorRevisionSismos {
   obtenerTodosLosUsuarios() {
     return usuarios.map((usuario) => ({
       nombreUsuario: usuario.getNombreUsuario(),
-      empleado: usuario.getRILogueado()
+      empleado: usuario.getEmpleado()
     }))
   }
 
@@ -98,7 +151,7 @@ export default class GestorRevisionSismos {
     ) return // Se verifica que estadoActual no sea ninguno de esos
 
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getRILogueado()
+    const empleado = usuario.getEmpleado()
 
     // WARN: REVISAR
     // NOTE: esta bien creo
@@ -114,7 +167,7 @@ export default class GestorRevisionSismos {
     if (!estadoActual.esAmbito("EventoSismico")) return
 
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getRILogueado()
+    const empleado = usuario.getEmpleado()
 
     evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
   }
@@ -128,7 +181,7 @@ export default class GestorRevisionSismos {
     if (!estadoActual.esAmbito("EventoSismico")) return
 
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getRILogueado()
+    const empleado = usuario.getEmpleado()
 
     evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
   }
@@ -142,7 +195,7 @@ export default class GestorRevisionSismos {
     if (!estadoActual.esAmbito("EventoSismico")) return
 
     const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getRILogueado()
+    const empleado = usuario.getEmpleado()
 
     evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
   }

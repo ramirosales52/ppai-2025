@@ -24,23 +24,18 @@ export default class Estado {
   esAutoDetectado() {
     return this.nombreEstado === "auto_detectado"
   }
-
   esPendienteDeRevision() {
     return this.nombreEstado === "pendiente_de_revision"
   }
-
   esBloqueadoEnRevision() {
     return this.nombreEstado === "bloqueado_en_revision"
   }
-
   esConfirmado() {
     return this.nombreEstado === "confirmado"
   }
-
   esRechazado() {
     return this.nombreEstado === "rechazado"
   }
-
   esDerivadoExperto() {
     return this.nombreEstado === "derivado_experto"
   }
@@ -49,4 +44,8 @@ export default class Estado {
     return this.ambito === ambito
   }
 
+  public esAmbitoEventoSismico(): boolean {
+    // Compara el ámbito con el valor "EventoSismico"
+    return this.ambito === "EventoSismico";
+  }
 }

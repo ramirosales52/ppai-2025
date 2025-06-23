@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router"
+import { useNavigate } from "react-router"
 
 export default function Home() {
+  const navigate = useNavigate()
+  function abrirVentana() {
+    navigate("/eventos-sismicos")
+  }
+
   return (
     <div className="flex flex-col items-center p-4 pt-0">
       <div className="w-full max-w-4xl p-8 mt-10 space-y-6 rounded-lg shadow-lg bg-white">
@@ -15,9 +20,9 @@ export default function Home() {
             <p className="mb-4 text-slate-600">
               Registrar la aprobación, rechazo o derivación de un sismo registrado automáticamente.
             </p>
-            <Link to="/eventos-sismicos">
-              <Button className="w-full cursor-pointer">Registrar resultado de revisión manual</Button>
-            </Link>
+            <Button onClick={() => abrirVentana()} className="w-full cursor-pointer">
+              Registrar resultado de revisión manual
+            </Button>
           </div>
         </div>
       </div>
