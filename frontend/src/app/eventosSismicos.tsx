@@ -2,14 +2,14 @@ import EventCard from "@/components/events-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { Evento } from "@/lib/types"
+import type { DatosPrincipales } from "@/lib/types"
 import axios from "axios"
 import { ArrowLeft, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router"
 
 export default function eventosSismicos() {
-  const [eventos, setEventos] = useState<Evento[]>([])
+  const [eventos, setEventos] = useState<DatosPrincipales[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchEventos = async () => {

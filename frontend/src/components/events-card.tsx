@@ -2,13 +2,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Activity, Brain, CheckCircle2, XCircle } from "lucide-react"
-import type { Evento } from "@/lib/types"
+import type { DatosPrincipales } from "@/lib/types"
 import { Link } from "react-router"
 import { formatoFecha } from "@/lib/formato"
 import { useEffect } from "react"
 
 interface EventCardProps {
-  evento: Evento,
+  evento: DatosPrincipales,
 }
 
 export default function EventCard({ evento }: EventCardProps) {
@@ -65,7 +65,7 @@ export default function EventCard({ evento }: EventCardProps) {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold">{new Date(evento.fechaHoraOcurriencia).toLocaleString("es-AR", formatoFecha).replace(',', ' -')}</h3>
+                <h3 className="text-lg font-semibold">{new Date(evento.fechaHoraOcurrencia).toLocaleString("es-AR", formatoFecha).replace(',', ' -')}</h3>
                 <p className="text-sm text-slate-500">ID: {evento.id}</p>
               </div>
               <div className="flex items-center justify-center w-10 h-10 bg-red-100 rounded-full" >

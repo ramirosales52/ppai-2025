@@ -37,36 +37,32 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
   const id = req.params.id
   const evento = gestor.tomarSeleccionEventoSismico(id)
 
-  if (!evento) {
-    res.status(404).json({ message: "Evento no encontrado" })
-    return
-  }
+  if (!evento) return
 
   try {
     if (
-      evento.getEstadoActual().esBloqueadoEnRevision() ||
-      evento.getEstadoActual().esConfirmado() ||
-      evento.getEstadoActual().esRechazado() ||
-      evento.getEstadoActual().esPendienteDeRevision()
-    ) { // Esto evita volver a bloquear el evento en caso que sea uno de esos estados
-      res.json(evento)
-    } else {
+      !evento.getEstadoActual().esBloqueadoEnRevision() &&
+      !evento.getEstadoActual().esConfirmado() &&
+      !evento.getEstadoActual().esRechazado() &&
+      !evento.getEstadoActual().esPendienteDeRevision()
+    ) {
       gestor.bloquearEventoSismico(id)
     }
+
+    const eventoActualizado = gestor.tomarSeleccionEventoSismico(id)
+    const datosPrincipales = eventoActualizado?.getDatosPrincipales()
+    const datosSismicos = gestor.mostrarDatosEventoSismicoSeleccionado(id)
+    const seriesTemporales = gestor.mostrarSeriesTemporalesPorEstacion(id)
+
+    res.status(200).json({
+      datosPrincipales,
+      datosSismicos,
+      seriesTemporales
+    })
   } catch (error) {
-    console.log(error)
+    console.error(error)
+    res.status(500).json({ message: error })
   }
-
-  const eventoBloqueado = gestor.tomarSeleccionEventoSismico(id)
-  const datosPrincipales = eventoBloqueado?.getDatosPrincipales()
-  const datosSismicos = gestor.mostrarDatosEventoSismicoSeleccionado(id)
-  const seriesTemporales = gestor.mostrarSeriesTemporalesPorEstacion(id)
-
-  res.json({
-    datosPrincipales: datosPrincipales,
-    datosSismicos: datosSismicos,
-    seriesTemporales: seriesTemporales
-  })
 })
 
 // Ruta para actualizar el estado del evento
