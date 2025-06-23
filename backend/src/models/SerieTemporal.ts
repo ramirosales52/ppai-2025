@@ -51,6 +51,10 @@ export default class SerieTemporal {
     return this.sismografo
   }
 
+  getMuestraSismica(): MuestraSismica[] {
+    return this.muestraSismica
+  }
+
   getDatos() {
     return {
       fechaHoraInicioRegistroMuestras: this.fechaHoraInicioRegistroMuestras,

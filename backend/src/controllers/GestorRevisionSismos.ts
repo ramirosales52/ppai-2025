@@ -2,24 +2,10 @@ import { eventosSismicos, usuarios } from "../data/data";
 import { ESTADOS } from "../data/estados";
 import Empleado from "../models/Empleado";
 import Estado from "../models/Estado";
-import EventoSismico from "../models/EventoSismico";
+import EventoSismico, { SeriesPorEstacion } from "../models/EventoSismico";
 import Sesion from "../models/Sesion";
 
 export default class GestorRevisionSismos {
-  iniciarSesion(nombreUsuario: string, contraseña: string) {
-    const usuario = usuarios.find((usuario) => usuario.getNombreUsuario() === nombreUsuario && usuario.getContraseña() === contraseña)
-
-    if (!usuario) {
-      throw new Error("Credenciales incorrectas")
-    }
-
-    Sesion.iniciarSesion(usuario)
-  }
-
-  obtenerSesionActual() {
-    return Sesion.getSesionActual()
-  }
-
   // Utiliza la fuente de datos real de eventos sismicos
   private readonly eventos: EventoSismico[] = eventosSismicos;
 
@@ -61,7 +47,7 @@ export default class GestorRevisionSismos {
     )
   }
 
-  // Paso 23 - fecha actual
+  // Paso 23/64 - fecha actual
   tomarFechaHoraActual() {
     return new Date
   }
@@ -82,9 +68,9 @@ export default class GestorRevisionSismos {
   }
 
   // Paso 27 - bloquear evento
-  bloquearEventoSismico(eventoId: string) {
+  bloquearEventoSismico(id: string) {
     const estadoBloqueado = this.buscarEstadoBloqueado()
-    const eventoSeleccionado = this.buscarEventoSismico(eventoId)
+    const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
     const fechaActual = this.tomarFechaHoraActual()
 
@@ -100,25 +86,110 @@ export default class GestorRevisionSismos {
 
     if (!evento) throw new Error("Evento no encontrado")
 
-    return {
-      alcanceSismo: evento.getAlcance(),
-      clasificacion: evento.getClasificacionSismo(),
-      origenDeGeneracion: evento.getOrigenDeGeneracion(),
-      seriesTemporales: this.buscarSeriesTemporales(id)
-
-    }
+    const datosSismicos = evento.buscarDatosSismicos()
+    return datosSismicos
   }
 
-  // TODO: AGREGAR METODO buscarSeriesTemporales()
+  // Paso 43 - mostrar datos sismicos
+  mostrarDatosEventoSismicoSeleccionado(id: string) {
+    return this.buscarDatosSismicos(id)
+  }
+
+  // Paso 44 - buscar las series temporales
   buscarSeriesTemporales(id: string) {
     const evento = eventosSismicos.find((evento) => evento.getId() === id);
     if (!evento) throw new Error("Evento no encontrado")
 
-    const seriesTemporales = evento.getSerieTemporal()
+    const seriesTemporales = evento.buscarSeriesTemporales()
+    const seriesOrdenadas = this.ordenarSeriesTemporales(seriesTemporales)
 
-    const seriesPorEstacion = evento.clasificarPorEstacion()
+    return seriesOrdenadas
+  }
+
+  // Paso 54 - Ordenar las series por fechaHoraInicioRegistroMuestras
+  ordenarSeriesTemporales(seriesPorEstacion: SeriesPorEstacion[]) {
+    for (const grupo of seriesPorEstacion) {
+      grupo.seriesTemporales.sort((a, b) =>
+        a.getFechaHoraInicioRegistroMuestras().getTime() -
+        b.getFechaHoraInicioRegistroMuestras().getTime()
+      );
+    }
 
     return seriesPorEstacion;
+  }
+
+  mostrarSeriesTemporalesPorEstacion(id: string) {
+    return this.buscarSeriesTemporales(id)
+  }
+
+  // Paso 61 -  buscar estado rechazado
+  buscarEstadoRechazado(): Estado | undefined {
+    const estados = Object.values(ESTADOS)
+    return estados.find(
+      (estado) => estado.esAmbitoEventoSismico() && estado.esRechazado() // Paso 62 y 63
+    )
+  }
+
+  rechazarEventoSismico(id: string) {
+    const estadoRechazado = this.buscarEstadoBloqueado()
+    const eventoSeleccionado = this.buscarEventoSismico(id)
+    const empleadoLogueado = this.buscarEmpleadoLogueado()
+    const fechaActual = this.tomarFechaHoraActual()
+
+    if (!eventoSeleccionado) return
+    if (!estadoRechazado) return
+
+    eventoSeleccionado.rechazar(fechaActual, empleadoLogueado, estadoRechazado)
+  }
+
+  // Flujo Alternativo A6
+  buscarEstadoConfirmado(): Estado | undefined {
+    const estados = Object.values(ESTADOS)
+    return estados.find(
+      (estado) => estado.esAmbitoEventoSismico() && estado.esConfirmado()
+    )
+  }
+
+  confirmarEventoSismico(id: string) {
+    const estadoConfirmado = this.buscarEstadoBloqueado()
+    const eventoSeleccionado = this.buscarEventoSismico(id)
+    const empleadoLogueado = this.buscarEmpleadoLogueado()
+    const fechaActual = this.tomarFechaHoraActual()
+
+    if (!eventoSeleccionado) return
+    if (!estadoConfirmado) return
+
+    eventoSeleccionado.confirmar(fechaActual, empleadoLogueado, estadoConfirmado)
+  }
+
+  // Flujo Alternativo A7
+  buscarEstadoDerivado(): Estado | undefined {
+    const estados = Object.values(ESTADOS)
+    return estados.find(
+      (estado) => estado.esAmbitoEventoSismico() && estado.esDerivadoExperto()
+    )
+  }
+  derivarEventoSismico(id: string) {
+    const estadoDerivado = this.buscarEstadoBloqueado()
+    const eventoSeleccionado = this.buscarEventoSismico(id)
+    const empleadoLogueado = this.buscarEmpleadoLogueado()
+    const fechaActual = this.tomarFechaHoraActual()
+
+    if (!eventoSeleccionado) return
+    if (!estadoDerivado) return
+
+    eventoSeleccionado.derivar(fechaActual, empleadoLogueado, estadoDerivado)
+  }
+
+  // --------- Metodos auxiliares ---------
+  iniciarSesion(nombreUsuario: string, contraseña: string) { // Metodo que inicia la sesion
+    const usuario = usuarios.find((usuario) => usuario.getNombreUsuario() === nombreUsuario && usuario.getContraseña() === contraseña)
+
+    if (!usuario) {
+      throw new Error("Credenciales incorrectas")
+    }
+
+    Sesion.iniciarSesion(usuario)
   }
 
   actualizarAPendienteRevision() { // Metodo para actualizar el evento dsp de 5min
@@ -127,77 +198,4 @@ export default class GestorRevisionSismos {
       evento.actualizarAPendienteRevision(fechaActual)
     })
   }
-
-  obtenerTodosLosUsuarios() {
-    return usuarios.map((usuario) => ({
-      nombreUsuario: usuario.getNombreUsuario(),
-      empleado: usuario.getEmpleado()
-    }))
-  }
-
-  // NOTE: el diagrama dice revisar()
-  bloquearEvento(id: string) {
-    const evento = eventosSismicos.find((evento) => evento.getId() === id)
-    if (!evento) throw new Error("Evento no encontrado")
-
-    const estadoActual = evento.getEstadoActual()
-
-    if (!estadoActual.esAmbito("EventoSismico")) return
-    if (
-      estadoActual.esBloqueadoEnRevision() ||
-      estadoActual.esConfirmado() ||
-      estadoActual.esRechazado() ||
-      estadoActual.esDerivadoExperto()
-    ) return // Se verifica que estadoActual no sea ninguno de esos
-
-    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getEmpleado()
-
-    // WARN: REVISAR
-    // NOTE: esta bien creo
-    evento.cambiarEstadoA(ESTADOS.bloqueado_en_revision, empleado)
-  }
-
-  rechazarEvento(id: string) {
-    const evento = eventosSismicos.find((evento) => evento.getId() === id)
-    if (!evento) throw new Error("Evento no encontrado")
-
-    const estadoActual = evento.getEstadoActual()
-
-    if (!estadoActual.esAmbito("EventoSismico")) return
-
-    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getEmpleado()
-
-    evento.cambiarEstadoA(ESTADOS.rechazado, empleado)
-  }
-
-  confirmarEvento(id: string) {
-    const evento = eventosSismicos.find((evento) => evento.getId() === id)
-    if (!evento) throw new Error("Evento no encontrado")
-
-    const estadoActual = evento.getEstadoActual()
-
-    if (!estadoActual.esAmbito("EventoSismico")) return
-
-    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getEmpleado()
-
-    evento.cambiarEstadoA(ESTADOS.confirmado, empleado)
-  }
-
-  derivarEvento(id: string) {
-    const evento = eventosSismicos.find((evento) => evento.getId() === id)
-    if (!evento) throw new Error("Evento no encontrado")
-
-    const estadoActual = evento.getEstadoActual()
-
-    if (!estadoActual.esAmbito("EventoSismico")) return
-
-    const usuario = Sesion.getSesionActual().getUsuarioLogueado()
-    const empleado = usuario.getEmpleado()
-
-    evento.cambiarEstadoA(ESTADOS.derivado_experto, empleado)
-  }
-
 }

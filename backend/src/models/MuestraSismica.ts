@@ -12,6 +12,10 @@ export default class MuestraSismica {
     this.detalleMuestraSismica = detalleMuestraSismica
   }
 
+  getDetalleMuestraSismica() {
+    return this.detalleMuestraSismica
+  }
+
   getDatos() {
     return {
       fechaHoraMuestra: this.fechaHoraMuestra,

@@ -35,14 +35,37 @@ export default function DetalleEvento() {
     fetchEvento()
   }, [])
 
-
-  const cambiarEstado = async (nuevoEstado: string) => {
+  const tomarSeleccionRechazo = async () => {
     try {
       await axios.post(`http://localhost:3000/eventos-sismicos/${id}`, {
-        nuevoEstado
+        nuevoEstado: "rechazado"
       })
       await fetchEvento()
-      toast.success(`Estado actualizado a "${nuevoEstado}"`)
+      toast.success("Estado actualizado a 'rechazado'")
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const tomarSeleccionConfirmado = async () => {
+    try {
+      await axios.post(`http://localhost:3000/eventos-sismicos/${id}`, {
+        nuevoEstado: "confirmado"
+      })
+      await fetchEvento()
+      toast.success("Estado actualizado a 'confirmado'")
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const tomarSeleccionDerivado = async () => {
+    try {
+      await axios.post(`http://localhost:3000/eventos-sismicos/${id}`, {
+        nuevoEstado: "derivado_experto"
+      })
+      await fetchEvento()
+      toast.success("Estado actualizado a 'derivado a experto'")
     } catch (error) {
       console.log(error)
     }
@@ -323,7 +346,7 @@ export default function DetalleEvento() {
                   <div className="grid gap-4 md:grid-cols-3">
                     <Button
                       className="flex items-center justify-center gap-2 h-14 cursor-pointer"
-                      onClick={() => cambiarEstado("confirmado")}
+                      onClick={() => tomarSeleccionConfirmado()}
                     >
                       <Check />
                       Confirmar evento
@@ -331,7 +354,7 @@ export default function DetalleEvento() {
                     <Button
                       variant="destructive"
                       className="flex items-center justify-center gap-2 h-14 cursor-pointer"
-                      onClick={() => cambiarEstado("rechazado")}
+                      onClick={() => tomarSeleccionRechazo()}
                     >
                       <X />
                       Rechazar evento
@@ -339,7 +362,7 @@ export default function DetalleEvento() {
                     <Button
                       variant="outline"
                       className="flex items-center justify-center gap-2 h-14 cursor-pointer"
-                      onClick={() => cambiarEstado("derivado_experto")}
+                      onClick={() => tomarSeleccionDerivado()}
                     >
                       <BrainIcon />
                       Solicitar revisión a experto

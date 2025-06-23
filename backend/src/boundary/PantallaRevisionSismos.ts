@@ -57,31 +57,16 @@ app.get('/eventos-sismicos/:id', (req: express.Request, res: express.Response) =
     console.log(error)
   }
 
-
   const eventoBloqueado = gestor.tomarSeleccionEventoSismico(id)
-  const datosEvento = gestor.buscarDatosSismicos(id)
+  const datosPrincipales = eventoBloqueado?.getDatosPrincipales()
+  const datosSismicos = gestor.mostrarDatosEventoSismicoSeleccionado(id)
+  const seriesTemporales = gestor.mostrarSeriesTemporalesPorEstacion(id)
 
-  res.json(eventoBloqueado)
-})
-
-// Ruta para obtener todos los usuarios del sistema
-app.get('/usuarios', (req: express.Request, res: express.Response) => {
-  const usuarios = gestor.obtenerTodosLosUsuarios()
-  if (!usuarios) {
-    res.status(404).json({ message: "No hay usuarios" })
-  }
-
-  res.json(usuarios)
-})
-
-// Ruta para obtener la sesion actual
-app.get('/sesion-actual', (req: express.Request, res: express.Response) => {
-  const sesionActual = gestor.obtenerSesionActual()
-  if (!sesionActual) {
-    res.status(404).json({ message: "Sesion no iniciada" })
-  }
-
-  res.json(sesionActual)
+  res.json({
+    datosPrincipales: datosPrincipales,
+    datosSismicos: datosSismicos,
+    seriesTemporales: seriesTemporales
+  })
 })
 
 // Ruta para actualizar el estado del evento
@@ -90,26 +75,21 @@ app.post('/eventos-sismicos/:id', (req: express.Request, res: express.Response) 
   const { nuevoEstado } = req.body
 
   try {
-    switch (nuevoEstado) {
-      case "confirmado":
-        gestor.confirmarEvento(id)
-        break;
-      case "derivado_experto":
-        gestor.derivarEvento(id)
-        break
-      default:
-        gestor.rechazarEvento(id)
-        break;
+    if (nuevoEstado === "rechazado") {
+      gestor.rechazarEventoSismico(id)
+    } else if (nuevoEstado === "confirmado") {
+      gestor.confirmarEventoSismico(id)
+    } else {
+      gestor.derivarEventoSismico(id)
     }
     res.status(200).json({ message: "Estado actualizado correctamente" })
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: "Error al actualizar el estado" })
   }
-
 })
 
 app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
+  console.log(`${PORT}`)
 })
 
