@@ -20,7 +20,7 @@ const gestor = new GestorRevisionSismos()
 gestor.iniciarSesion("juan1.p", "123abc")
 
 // Ruta para obtener todos los eventos sismicos auto detectados no revisados
-app.get('/eventos-sismicos', (req: express.Request, res: express.Response) => {
+app.get('/eventos-sismicos', (_req: express.Request, res: express.Response) => {
   gestor.actualizarAPendienteRevision() // Metodo que actualiza los eventos a pendiente_de_revision automaticamente
 
   const eventosSismicos = gestor.mostrarEventosSismicosParaSeleccion()
