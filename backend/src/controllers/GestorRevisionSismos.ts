@@ -1,5 +1,7 @@
 import { eventosSismicos, usuarios } from "../data/data";
 import { ESTADOS } from "../data/estados";
+import { actualizarEstadoEvento, cargarDatosCompletosPorEvento } from "../data/repositories";
+import AlcanceSismo from "../models/AlcanceSismo";
 import Empleado from "../models/Empleado";
 import Estado from "../models/Estado";
 import EventoSismico, { SeriesPorEstacion } from "../models/EventoSismico";
@@ -39,6 +41,19 @@ export default class GestorRevisionSismos {
     return evento
   }
 
+  async cargarDatosCompletosEvento(id: string) {
+    const evento = this.tomarSeleccionEventoSismico(id)
+    if (!evento) return
+    
+    const { series, cambios } = await cargarDatosCompletosPorEvento(id);
+    (evento as any).serieTemporal = series;
+    (evento as any).cambioEstado = cambios;
+    
+    if (series.length > 0) {
+      (evento as any).alcance = AlcanceSismo.calcularAlcance(evento);
+    }
+  }
+
   // Paso 20 - buscar estado bloqueado
   buscarEstadoBloqueado(): Estado | undefined {
     const estados = Object.values(ESTADOS)
@@ -68,7 +83,7 @@ export default class GestorRevisionSismos {
   }
 
   // Paso 27 - bloquear evento
-  bloquearEventoSismico(id: string) {
+  async bloquearEventoSismico(id: string) {
     const estadoBloqueado = this.buscarEstadoBloqueado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
@@ -78,6 +93,14 @@ export default class GestorRevisionSismos {
     if (!estadoBloqueado) return
 
     eventoSeleccionado.bloquear(fechaActual, empleadoLogueado, estadoBloqueado);
+    
+    await actualizarEstadoEvento(
+      id,
+      'bloqueado_en_revision',
+      fechaActual,
+      fechaActual,
+      empleadoLogueado
+    );
   }
 
   // Paso 35 - buscar datos sismiscos (alcance, clasificacion, origen)
@@ -130,7 +153,7 @@ export default class GestorRevisionSismos {
     )
   }
 
-  rechazarEventoSismico(id: string) {
+  async rechazarEventoSismico(id: string) {
     const estadoRechazado = this.buscarEstadoRechazado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
@@ -140,6 +163,14 @@ export default class GestorRevisionSismos {
     if (!estadoRechazado) return
 
     eventoSeleccionado.rechazar(fechaActual, empleadoLogueado, estadoRechazado)
+    
+    await actualizarEstadoEvento(
+      id,
+      'rechazado',
+      fechaActual,
+      fechaActual,
+      empleadoLogueado
+    );
   }
 
   // Flujo Alternativo A6
@@ -150,7 +181,7 @@ export default class GestorRevisionSismos {
     )
   }
 
-  confirmarEventoSismico(id: string) {
+  async confirmarEventoSismico(id: string) {
     const estadoConfirmado = this.buscarEstadoConfirmado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
@@ -160,6 +191,14 @@ export default class GestorRevisionSismos {
     if (!estadoConfirmado) return
 
     eventoSeleccionado.confirmar(fechaActual, empleadoLogueado, estadoConfirmado)
+    
+    await actualizarEstadoEvento(
+      id,
+      'confirmado',
+      fechaActual,
+      fechaActual,
+      empleadoLogueado
+    );
   }
 
   // Flujo Alternativo A7
@@ -169,7 +208,7 @@ export default class GestorRevisionSismos {
       (estado) => estado.esAmbitoEventoSismico() && estado.esDerivadoExperto()
     )
   }
-  derivarEventoSismico(id: string) {
+  async derivarEventoSismico(id: string) {
     const estadoDerivado = this.buscarEstadoDerivado()
     const eventoSeleccionado = this.buscarEventoSismico(id)
     const empleadoLogueado = this.buscarEmpleadoLogueado()
@@ -179,6 +218,14 @@ export default class GestorRevisionSismos {
     if (!estadoDerivado) return
 
     eventoSeleccionado.derivar(fechaActual, empleadoLogueado, estadoDerivado)
+    
+    await actualizarEstadoEvento(
+      id,
+      'derivado_experto',
+      fechaActual,
+      fechaActual,
+      empleadoLogueado
+    );
   }
 
   buscarEstadoAutoDetectado(): Estado | undefined {
@@ -195,7 +242,7 @@ export default class GestorRevisionSismos {
     )
   }
 
-  cancelar(id: string) {
+  async cancelar(id: string) {
     const estadoAutoDetectado = this.buscarEstadoAutoDetectado()
     const estadoPendiente = this.buscarEstadoPendienteDeRevision()
     const eventoSeleccionado = this.buscarEventoSismico(id)
@@ -206,6 +253,18 @@ export default class GestorRevisionSismos {
     if (!estadoPendiente) return
 
     eventoSeleccionado.cancelar(fechaActual, estadoAutoDetectado, estadoPendiente)
+    
+    const haceCuanto = fechaActual.getTime() - eventoSeleccionado.getFechaHoraOcurrencia().getTime()
+    const cincoMinutos = 5 * 60 * 1000
+    const nuevoEstado = haceCuanto >= cincoMinutos ? 'pendiente_de_revision' : 'auto_detectado';
+    
+    await actualizarEstadoEvento(
+      id,
+      nuevoEstado,
+      fechaActual,
+      fechaActual,
+      null
+    );
   }
 
   // --------- Metodos auxiliares ---------
@@ -219,14 +278,27 @@ export default class GestorRevisionSismos {
     Sesion.iniciarSesion(usuario)
   }
 
-  actualizarAPendienteRevision() { // Metodo para actualizar el evento dsp de 5min
+  actualizarAPendienteRevision() {
     const estadoPendiente = this.buscarEstadoPendienteDeRevision()
     const fechaActual = this.tomarFechaHoraActual()
 
     if (!estadoPendiente) return
 
     eventosSismicos.forEach((evento) => {
-      evento.actualizarAPendienteRevision(fechaActual, estadoPendiente)
+      const haceCuanto = fechaActual.getTime() - evento.getFechaHoraOcurrencia().getTime()
+      const cincoMinutos = 5 * 60 * 1000
+
+      if (evento.getEstadoActual().esAutoDetectado() && haceCuanto >= cincoMinutos) {
+        evento.actualizarAPendienteRevision(fechaActual, estadoPendiente)
+        
+        actualizarEstadoEvento(
+          evento.getId(),
+          'pendiente_de_revision',
+          fechaActual,
+          fechaActual,
+          null
+        ).catch(() => {});
+      }
     })
   }
 }

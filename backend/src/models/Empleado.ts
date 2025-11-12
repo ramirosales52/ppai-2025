@@ -23,4 +23,8 @@ export default class Empleado {
   getApellido() {
     return this.apellido
   }
+
+  getMail() {
+    return this.mail
+  }
 }

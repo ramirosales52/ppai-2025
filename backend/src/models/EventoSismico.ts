@@ -1,4 +1,3 @@
-import { eventosSismicos } from "../data/data"
 import { ESTADOS } from "../data/estados"
 import AlcanceSismo from "./AlcanceSismo"
 import CambioEstado from "./CambioEstado"
@@ -76,7 +75,7 @@ export default class EventoSismico {
     this.estadoActual = estadoInicial.getEstado()
 
     this.clasificacionSismo = ClasificacionSismo.setClasificacionSismo(profundidad)
-    this.alcance = AlcanceSismo.calcularAlcance(this)
+    this.alcance = serieTemporal.length > 0 ? AlcanceSismo.calcularAlcance(this) : null as any
   }
 
 
